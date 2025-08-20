@@ -600,8 +600,82 @@ prnt %>%
 ggsave("analysis/prnts-curves.png",
        units="in", width=7.5, height=6)
 
+# plot maximum neutralization for each and compare outcomes
+prnt %>%
+  filter(`Dilution factor`==10) %>%
+  group_by(Tattoo) %>%
+  slice_max(order_by=PercentReduction, n=1, with_ties=FALSE) %>%
+  left_join(df$animals, by="Tattoo") %>%
+  ggplot(aes(Outcome, PercentReduction)) +
+  geom_boxplot(aes(fill=Outcome), alpha=0.5, outliers=FALSE) +
+  geom_jitter(aes(fill=Outcome), pch=21, height=0, width=0.2) +
+  scale_fill_manual(values=cols.outcome) +
+  ylim(0, 100) +
+  ggpubr::stat_compare_means(comparisons=list(c("Succumbed", "Survived")),
+                             method="wilcox.test", label="p.signif") +
+  labs(y="Neutralization (%)") +
+  theme(legend.position="none")
+ggsave("analysis/prnts-max.png",
+       units="in", width=4, height=4)
+
 # clean up
 rm(prnt, vc)
+
+## ELISAs ----------------------------------------------------------------------
+# over time -- very messy
+df$ELISAs %>%
+  reshape2::melt(measure.vars=c("IgM", "IgG"),
+                 value.name="Titer") %>%
+  left_join(df$animals, by="Tattoo") %>%
+  ggplot(aes(DPI, Titer+100)) +
+  geom_line(aes(group=Tattoo, col=Outcome)) +
+  geom_point(aes(fill=Outcome), pch=21) +
+  scale_fill_manual(values=cols.outcome) +
+  scale_color_manual(values=cols.outcome) +
+  scale_y_continuous(limits=c(NA, 30000),
+                     breaks=c(100, 200, 800, 3200, 12800),
+                     labels=c("<LOD", 200, 800, 3200, 12800),
+                     trans="log2") +
+  facet_grid(variable ~ Antigen)
+
+# is there any difference between outcomes at endpoints?
+elisas <- df$ELISAs %>%
+          group_by(Tattoo, Antigen) %>%
+          top_n(n=1, wt=DPI) %>%
+          reshape2::melt(measure.vars=c("IgM", "IgG"),
+                         variable.name="Immunoglobulin",
+                         value.name="Titer") %>%
+          left_join(df$animals, by="Tattoo")
+# get p-value significance
+psig <- elisas %>%
+        mutate(Titer=log2(Titer+1)) %>%
+        group_by(Immunoglobulin, Antigen) %>%
+        rstatix::wilcox_test(Titer ~ Outcome) %>%
+        rstatix::adjust_pvalue() %>%
+        rstatix::add_significance() %>%
+        rstatix::add_xy_position(x="Antigen")
+# add pseudocount (100) to samples <LOD
+elisas$Titer[elisas$Titer==0] <- 100
+# plot it and add statistical comparisons
+elisas %>%
+  ggplot(aes(Antigen, Titer)) +
+  geom_boxplot(aes(group=interaction(Antigen, Outcome), fill=Outcome), 
+               alpha=0.5, outliers=FALSE) +
+  geom_point(aes(fill=Outcome, group=interaction(Antigen, Outcome)), 
+             pch=21, position=position_jitterdodge(jitter.width=0.2)) +
+  scale_fill_manual(values=cols.outcome) +
+  scale_y_continuous(breaks=c(100, 200, 800, 3200, 12800),
+                     labels=c("<LOD", 200, 800, 3200, 12800),
+                     trans="log2",
+                     expand = expansion(mult = c(0.05, 0.1))) +
+  ggpubr::stat_pvalue_manual(psig, label="p.adj.signif") +
+  facet_wrap(~Immunoglobulin) +
+  labs(y="Endpoint titer")
+ggsave("analysis/elisas-endpoint.png",
+       units="in", width=6, height=4)
+
+# clean up
+rm(psig, elisas)
 
 ## fin -------------------------------------------------------------------------
 sessionInfo()
