@@ -14,7 +14,8 @@ cols.dose <- c("27.5"="#000000",
                "10"="#737373",
                "1"="#bdbdbd",
                "0.1"="#f0f0f0")
-sample.dates <- c(0, 3, 4, 7, 10, 14, 21, 28, 35)
+#sample.dates <- c(0, 3, 4, 7, 10, 14, 21, 28, 35)
+breaks.dates <- c(0, 7, 14, 21, 28, 35)
 
 # load the full Excel table 
 sheets <- readxl::excel_sheets("data.xlsx")
@@ -30,32 +31,38 @@ df$animals <- df$animals %>%
               mutate(Outcome=factor(Outcome, levels=names(cols.outcome)),
                      Dose=factor(Dose, levels=names(cols.dose)))
 
+# format for KM curve
+km <- df$animals %>%
+      mutate(Outcome=as.integer(Outcome)-1)
+
 # survival: KM curve and log-rank test
-pval <- df$animals %>%
-        mutate(Outcome=as.integer(Outcome)-1) %>%
+pval <- km %>%
         survival::survdiff(Surv(Death, Outcome) ~ Dose, data=.)
-pval <- format.pval(pval$pvalue, digits=2)
+pval <- format.pval(pval$pvalue, digits=1)
 pval <- paste0("p=", pval)
 
-# plot it
-df$animals %>%
-  mutate(Outcome=as.integer(Outcome)-1) %>%
+# add an "overall" condition then plot it
+km %>%
+  mutate(Dose="Overall") %>%
+  rbind(km) %>%
+  mutate(Dose=factor(Dose, levels=c(levels(df$animals$Dose), "Overall"))) %>%
   survfit2(Surv(Death, Outcome) ~ Dose, data=.) %>%
-  ggsurvfit::ggsurvfit(theme=ggpubr::theme_pubr(), 
-                       size=1) +
-  scale_color_manual(values=cols.dose) +
+  ggsurvfit(theme=ggpubr::theme_pubr(), 
+            linewidth=1) +
+  scale_color_manual(values=c(cols.dose, Overall="#e41a1c")) +
   # add p-value
   annotate("text", x=35, y=1.05, hjust=1, label=pval) +
   scale_y_continuous(limits=c(0, 1.1), 
                      breaks=c(0, 0.25, 0.5, 0.75, 1)) +
-  scale_x_continuous(breaks=c(0, 7, 14, 21, 28, 35)) +
+  scale_x_continuous(breaks=breaks.dates) +
   labs(x="Days postinfection",
        y="Survival probability", 
-       col="Challenge (PFU)") +
-  theme(legend.position=c(0.8, 0.4))
+       col="PFU",
+       title="Survival") +
+  theme(legend.position="right")
 ggsave("analysis/survival.png",
-       units="in", width=4, height=3)
-rm(pval)
+       units="in", width=4, height=2.5)
+rm(pval, km)
 
 # scores
 # extract the challenge time and calculate time since challenge for all obs
@@ -74,18 +81,15 @@ df$scores %>%
   ggplot(aes(DPI, Score)) +
   geom_hline(yintercept=9, col="lightgrey", linetype=2) +
   geom_line(aes(col=Dose, group=Tattoo)) +
-  geom_point(aes(fill=Dose), pch=21) +
+  geom_point(aes(col=Dose), size=0.5) +
   scale_color_manual(values=cols.dose) +
-  scale_fill_manual(values=cols.dose) +
-  scale_y_continuous(limits=c(0, 20)) +
-  scale_x_continuous(breaks=c(0, 7, 14, 21, 28, 35)) +
+  scale_x_continuous(breaks=breaks.dates) +
   labs(x="Days postinfection",
        y="Clinical score",
-       col="Challenge (PFU)",
-       fill="Challenge (PFU)") +
-  theme(legend.position=c(0.8, 0.8))
+       col="PFU",
+       title="Clinical scores") 
 ggsave("analysis/score.png",
-       units="in", width=6, height=4)
+       units="in", width=4, height=2.5)
 rm(baseline)
 
 # decreased appetite
@@ -99,18 +103,25 @@ df$observations %>%
   select(Tattoo, Dose, DPI, Reduction, Death) %>%
   # order NHPs by day of death
   arrange(Death) %>%
-  mutate(Tattoo=factor(Tattoo, levels=unique(Tattoo))) %>%
+  mutate(Tattoo=factor(Tattoo, levels=unique(Tattoo)),
+         Dose=factor(Dose, levels=paste(levels(df$animals$Dose), "PFU"))) %>%
   # plot it
   ggplot(aes(DPI, Tattoo)) +
   geom_tile(aes(fill=Reduction)) +
-  scale_fill_gradient(low="black", high="white") +
-  scale_x_continuous(breaks=c(0, 7, 14, 21, 28, 35)) +
+  scale_fill_gradient(low="black", high="white",
+                      labels=c(0, 50, 100),
+                      breaks=c(0, 0.5, 1)) +
+  scale_x_continuous(breaks=breaks.dates) +
   facet_wrap(~Dose, ncol=1, scales="free_y") +
   labs(x="Days postinfection",
-       y=element_blank(),
-       fill="Appetite")
+       y=NULL,
+       fill="Appetite (%)",
+       title="Appetite") +
+  theme(legend.position="bottom",
+        axis.text.y=element_blank(),
+        axis.ticks.y=element_blank())
 ggsave("analysis/appetite.png",
-       units="in", width=3.75, height=6)
+       units="in", width=2.5, height=5)
 
 ## viremia ---------------------------------------------------------------------
 # add challenge dose
@@ -122,209 +133,170 @@ viremia <- df$`virology-blood` %>%
 viremia %>%
   ggplot(aes(DPI, `GEq/mL`+1e2)) +
   geom_line(aes(col=Dose, group=Tattoo)) +
-  geom_point(aes(fill=Dose), pch=21) +
+  geom_point(aes(col=Dose), size=0.5) +
   scale_color_manual(values=cols.dose) +
-  scale_fill_manual(values=cols.dose) +
   scale_y_continuous(limits=c(20, 1e13), 
                      breaks=c(1e2, 1e4, 1e6, 1e8, 1e10, 1e12),
                      labels=c("<LoD", "1e04", "1e+06", 
                               "1e+08", "1e+10", "1e+12"),
                      trans="log10") +
-  scale_x_continuous(breaks=sample.dates) +
+  scale_x_continuous(breaks=breaks.dates) +
   labs(x="Days postinfection",
        y="LASV GEq/mL",
-       col="Challenge (PFU)",
-       fill="Challenge (PFU)")
+       col="PFU",
+       title="LASV genomes") +
+  theme(legend.position="none")
 ggsave("analysis/viremia-qpcr-longitudinal.png",
-       units="in", width=6, height=4)
+       units="in", width=3.25, height=2)
 
 # plaque assay
 viremia %>%
   ggplot(aes(DPI, `PFU/mL`+24)) +
   geom_line(aes(group=Tattoo, col=Dose)) +
-  geom_point(aes(fill=Dose), pch=21) +
+  geom_point(aes(col=Dose), size=0.521) +
   scale_color_manual(values=cols.dose) +
-  scale_fill_manual(values=cols.dose) +
   scale_y_continuous(limits=c(20, 1e13), 
                      breaks=c(24, 1e4, 1e6, 1e8, 1e10, 1e12),
                      labels=c("<LoD", "1e04", "1e+06", 
                               "1e+08", "1e+10", "1e+12"),
                      trans="log10") +
-  scale_x_continuous(breaks=sample.dates) +
+  scale_x_continuous(breaks=breaks.dates) +
   labs(x="Days postinfection",
        y="LASV PFU/mL", 
-       col="Challenge (PFU)",
-       fill="Challenge (PFU)")
+       col="PFU",
+       title="LASV titer") +
+  theme(legend.position=c(0.8, 0.6))
 ggsave("analysis/viremia-plaqueassay-longitudinal.png",
-       units="in", width=6, height=4)
+       units="in", width=3.25, height=2)
 
-# hypothesis: viremia onset differs by challenge dose -- no difference
-# qRT-PCR
-viremia %>%
-  filter(`GEq/mL` > 0) %>%
-  group_by(Tattoo) %>%
-  top_n(n=1, wt=DPI) %>%
-  ungroup() %>%
-  rename(Onset=DPI) %>%
-  rstatix::kruskal_test(Onset ~ Dose)
-# plaque assay
-viremia %>%
-  filter(`PFU/mL` > 0) %>%
-  group_by(Tattoo) %>%
-  top_n(n=1, wt=DPI) %>%
-  ungroup() %>%
-  rename(Onset=DPI) %>%
-  rstatix::kruskal_test(Onset ~ Dose)
+# viremia onset hypotheses: 
+# (1) time of viremia onset differs by challenge dose or outcome
+# (2) viral load at onset differs by challenge dose or outcome
+onset <- viremia %>%
+         reshape2::melt(id.vars=c("Tattoo", "DPI", "Dose", "Outcome"),
+                        variable.name="Assay",
+                        value.name="Viral.load") %>%
+         mutate(Assay=factor(Assay, 
+                             levels=c("GEq/mL", "PFU/mL"), 
+                             labels=c("qRT-PCR", "Plaque assay"))) %>%
+         filter(Viral.load > 0) %>%
+         group_by(Tattoo, Outcome, Assay) %>%
+         top_n(n=-1, wt=DPI) %>%
+         ungroup() %>%
+         rename(Onset=DPI) %>%
+         select(Assay, Outcome, Dose, Onset, Viral.load)
+# can't test statistically; n is too small for some groups
+onset %>%
+  group_by(Assay, Outcome) %>%
+  summarise(NHPs=n())
+onset %>%
+  group_by(Assay, Dose) %>%
+  summarise(NHPs=n())
+rm(onset)
 
-# what about by outcome? still no. 
-# qRT-PCR
-viremia %>%
-  filter(`GEq/mL` > 0) %>%
-  group_by(Tattoo) %>%
-  top_n(n=1, wt=DPI) %>%
-  ungroup() %>%
-  rename(Onset=DPI) %>%
-  rstatix::wilcox_test(Onset ~ Outcome)
-# plaque assay
-viremia %>%
-  filter(`PFU/mL` > 0) %>%
-  group_by(Tattoo) %>%
-  top_n(n=1, wt=DPI) %>%
-  ungroup() %>%
-  rename(Onset=DPI) %>%
-  rstatix::kruskal_test(Onset ~ Outcome)
-
-# hypothesis: viral load at onset differs by challenge dose -- no difference
-# qRT-PCR
-viremia %>%
-  filter(`GEq/mL` > 0) %>%
-  group_by(Tattoo) %>%
-  top_n(n=1, wt=DPI) %>%
-  ungroup() %>%
-  rstatix::kruskal_test(`GEq/mL` ~ Dose)
-# plaque assay
-viremia %>%
-  filter(`PFU/mL` > 0) %>%
-  group_by(Tattoo) %>%
-  top_n(n=1, wt=DPI) %>%
-  ungroup() %>%
-  rstatix::kruskal_test(`PFU/mL` ~ Dose)
-
-# what about by outcome? Yes, but n < 3 survived with viremia, so eh...
-# qRT-PCR
-viremia %>%
-  filter(`GEq/mL` > 0) %>%
-  group_by(Tattoo) %>%
-  top_n(n=1, wt=DPI) %>%
-  ungroup() %>%
-  rstatix::wilcox_test(`GEq/mL` ~ Outcome)
-# plaque assay
-viremia %>%
-  filter(`PFU/mL` > 0) %>%
-  group_by(Tattoo) %>%
-  top_n(n=1, wt=DPI) %>%
-  ungroup() %>%
-  rstatix::wilcox_test(`PFU/mL` ~ Outcome)
-
-# hypothesis: peak viral load differs by challenge dose -- absolutely
-# qRT-PCR
-p1 <- viremia %>%
-      group_by(Tattoo) %>%
-      slice_max(order_by=`GEq/mL`, n=1, with_ties=FALSE) %>%
-      ungroup() %>%
-      ggplot(aes(Dose, `GEq/mL`+1e2)) +
-      geom_boxplot(aes(fill=Dose), outliers=FALSE, alpha=0.5) +
-      geom_jitter(height=0, width=0.2) +
-      scale_fill_manual(values=cols.dose) +
-      ggpubr::stat_compare_means(method="kruskal.test", 
-                                 label.y=17,
-                                 label.x.npc=0.1) +
-      ggpubr::stat_pwc(label="p.adj.signif", step.increase=0.15, hide.ns=TRUE) + 
-      scale_y_continuous(limits=c(20, 1e18), 
-                         breaks=c(1e2, 1e4, 1e6, 1e8, 1e10, 1e12),
-                         labels=c("<LoD", "1e+04", "1e+06", 
-                                  "1e+08", "1e+10", "1e+12"),
-                         trans="log10") +
-      facet_wrap(~ "qRT-PCR") +
-      labs(x="Challenge (PFU)",
-           y="Peak LASV GEq/mL") +
-      theme(legend.position="none")
-# plaque assay
-p2 <- viremia %>%
-      group_by(Tattoo) %>%
-      slice_max(order_by=`PFU/mL`, n=1, with_ties=FALSE) %>%
-      ungroup() %>%
-      ggplot(aes(Dose, `PFU/mL`+1e2)) +
-      geom_boxplot(aes(fill=Dose), outliers=FALSE, alpha=0.5) +
-      geom_jitter(height=0, width=0.2) +
-      scale_fill_manual(values=cols.dose) +
-      ggpubr::stat_compare_means(method="kruskal.test", 
-                                 label.y=17,
-                                 label.x.npc=0.1) +
-      ggpubr::stat_pwc(label="p.adj.signif", step.increase=0.3, hide.ns=TRUE) + 
-      scale_y_continuous(limits=c(20, 1e18), 
-                         breaks=c(24, 1e4, 1e6, 1e8, 1e10, 1e12),
-                         labels=c("<LoD", "1e+04", "1e+06", 
-                                  "1e+08", "1e+10", "1e+12"),
-                         trans="log10") +
-      facet_wrap(~ "Plaque assay") +
-      labs(x="Challenge (PFU)",
-           y="Peak LASV PFU/mL") +
-      theme(legend.position="none")
-cowplot::plot_grid(p1, p2, nrow=1)
-ggsave("analysis/viremia-peak-dose.png",
-       units="in", width=6, height=3)
-
-# what about by outcome?
-# qRT-PCR
-p1 <- viremia %>%
-      group_by(Tattoo) %>%
-      slice_max(order_by=`GEq/mL`, n=1, with_ties=FALSE) %>%
-      ungroup() %>%
-      ggplot(aes(Outcome, `GEq/mL`+1e2)) +
-      geom_boxplot(aes(fill=Outcome), outliers=FALSE, alpha=0.5) +
-      geom_jitter(height=0, width=0.2) +
-      scale_fill_manual(values=cols.outcome) +
-      ggpubr::stat_compare_means(comparisons=list(c("Survived", "Succumbed")), 
-                                 label="p.signif") +
-      scale_y_continuous(limits=c(20, 1e13), 
-                         breaks=c(1e2, 1e4, 1e6, 1e8, 1e10, 1e12),
-                         labels=c("<LoD", "1e04", "1e+06", 
-                                  "1e+08", "1e+10", "1e+12"),
-                         trans="log10") +
-      facet_wrap(~ "qRT-PCR") +
-      labs(x="Outcome",
-           y="Peak LASV GEq/mL") +
-      theme(legend.position="none")
-# plaque assay
-p2 <- viremia %>%
-      group_by(Tattoo) %>%
-      slice_max(order_by=`PFU/mL`, n=1, with_ties=FALSE) %>%
-      ungroup() %>%
-      ggplot(aes(Outcome, `PFU/mL`+24)) +
-      geom_boxplot(aes(fill=Outcome), outliers=FALSE, alpha=0.5) +
-      geom_jitter(height=0, width=0.2) +
-      scale_fill_manual(values=cols.outcome) +
-      ggpubr::stat_compare_means(comparisons=list(c("Survived", "Succumbed")), 
-                                 label="p.signif") +
-      scale_y_continuous(limits=c(20, 1e13), 
-                         breaks=c(24, 1e4, 1e6, 1e8, 1e10, 1e12),
-                         labels=c("<LoD", "1e04", "1e+06", 
-                                  "1e+08", "1e+10", "1e+12"),
-                         trans="log10") +
-      facet_wrap(~ "Plaque assay") +
-      labs(x="Outcome",
-           y="Peak LASV PFU/mL") +
-      theme(legend.position="none")
-cowplot::plot_grid(p1, p2, nrow=1)
-ggsave("analysis/viremia-peak-outcome.png",
-       units="in", width=6, height=3)
+# peak viral load hypotheses: including zeroes from survivors with no viremia
+peak <- viremia %>%
+        reshape2::melt(id.vars=c("Tattoo", "DPI", "Dose", "Outcome"),
+                       variable.name="Assay",
+                       value.name="Viral.load") %>%
+        mutate(Assay=factor(Assay, 
+                            levels=c("GEq/mL", "PFU/mL"), 
+                            labels=c("qRT-PCR", "Plaque assay")),
+               Outcome=factor(Outcome, 
+                              levels=c("Succumbed", "Survived"),
+                              labels=c("Succ.", "Surv."))) %>%
+        group_by(Tattoo, Outcome, Assay) %>%
+        slice_max(order_by=Viral.load, n=1, with_ties=FALSE) %>%
+        ungroup() %>%
+        select(Assay, Outcome, Dose, Viral.load)
+# (1) differs by challenge dose -- test first by KW, then pairwise
+peak %>%
+  group_by(Assay) %>%
+  rstatix::kruskal_test(Viral.load ~ Dose) %>%
+  rstatix::p_format(digits=1) 
+peak %>%
+  filter(Assay=="qRT-PCR") %>%
+  ggplot(aes(Dose, Viral.load+1e2)) +
+  geom_boxplot(fill="grey", outliers=FALSE, alpha=0.5) +
+  geom_jitter(height=0, width=0.2, size=0.5) +
+  ggpubr::stat_pwc(label="p.adj.signif", step.increase=0.2, hide.ns=TRUE) + 
+  scale_y_continuous(limits=c(20, 1e18), 
+                     breaks=c(1e2, 1e6, 1e10, 1e14),
+                     labels=c("<LoD", "1e+06", "1e+10", "1e+14"),
+                     trans="log10") +
+  labs(x="Challenge (PFU)",
+       y="LASV GEq/mL",
+       title="Max genomes") +
+  theme(legend.position="none")
+ggsave("analysis/viremia-qpcr-peak-dose.png",
+       units="in", width=2.16, height=2)
+peak %>%
+  filter(Assay=="Plaque assay") %>%
+  ggplot(aes(Dose, Viral.load+24)) +
+  geom_boxplot(fill="grey", outliers=FALSE, alpha=0.5) +
+  geom_jitter(height=0, width=0.2, size=0.5) +
+  ggpubr::stat_pwc(label="p.adj.signif", step.increase=0.5, hide.ns=TRUE) + 
+  scale_y_continuous(limits=c(20, 1e18), 
+                     breaks=c(24, 1e6, 1e10, 1e14),
+                     labels=c("<LoD", "1e+06", "1e+10", "1e+14"),
+                     trans="log10") +
+  labs(x="Challenge (PFU)",
+       y="LASV PFU/mL",
+       title="Max titer") +
+  theme(legend.position="none")
+ggsave("analysis/viremia-plaqueassay-peak-dose.png",
+       units="in", width=2.16, height=2)
+# (2) differs by outcome -- test first by KW, then pairwise
+peak %>%
+  group_by(Assay) %>%
+  rstatix::kruskal_test(Viral.load ~ Outcome) %>%
+  rstatix::p_format(digits=1) 
+peak %>%
+  filter(Assay=="qRT-PCR") %>%
+  ggplot(aes(Outcome, Viral.load+1e2)) +
+  geom_boxplot(fill="grey", outliers=FALSE, alpha=0.5) +
+  geom_jitter(height=0, width=0.2, size=0.5) +
+  ggpubr::stat_pwc(label="p.signif") + 
+  scale_y_continuous(limits=c(20, 1e18), 
+                     breaks=c(1e2, 1e6, 1e10, 1e14),
+                     labels=c("<LoD", "1e+06", "1e+10", "1e+14"),
+                     trans="log10") +
+  labs(x="Outcome",
+       title="") +
+  theme(axis.text.y=element_blank(),
+        axis.title.y=element_blank())
+ggsave("analysis/viremia-qpcr-peak-outcome.png",
+       units="in", width=1.18, height=2)
+peak %>%
+  filter(Assay=="Plaque assay") %>%
+  ggplot(aes(Outcome, Viral.load+24)) +
+  geom_boxplot(fill="grey", outliers=FALSE, alpha=0.5) +
+  geom_jitter(height=0, width=0.2, size=0.5) +
+  ggpubr::stat_pwc(label="p.signif") + 
+  scale_y_continuous(limits=c(20, 1e18), 
+                     breaks=c(1e2, 1e6, 1e10, 1e14),
+                     labels=c("<LoD", "1e+06", "1e+10", "1e+14"),
+                     trans="log10") +
+  labs(x="Outcome",
+       title="") +
+  theme(axis.text.y=element_blank(),
+        axis.title.y=element_blank())
+ggsave("analysis/viremia-plaqueassay-peak-outcome.png",
+       units="in", width=1.18, height=2)
 
 # clean up
-rm(viremia, p1, p2)
+rm(viremia, peak)
 
 ## tissue virology -------------------------------------------------------------
-# qRT-PCR only -- not all tissues plaque-assayed
+# are all statistically significantly different by outcome? Yes.
+df$`virology-tissues` %>%
+  filter(Tissue != "Aqueous humor") %>%
+  left_join(df$animals, by="Tattoo") %>%
+  group_by(Tissue) %>%
+  rstatix::wilcox_test(`GEq/g` ~ Outcome) %>%
+  rstatix::p_format()
+  
+# qRT-PCR only; not all tissues plaque-assayed
 df$`virology-tissues` %>%
   filter(Tissue != "Aqueous humor") %>%
   left_join(df$animals, by="Tattoo") %>%
@@ -332,25 +304,21 @@ df$`virology-tissues` %>%
   geom_boxplot(aes(fill=Outcome, col=Outcome), alpha=0.5, na.rm=TRUE) +
   scale_fill_manual(values=cols.outcome) +
   scale_color_manual(values=cols.outcome) +
-  ggpubr::stat_compare_means(aes(group=Outcome), na.rm=TRUE,
-                             label="p.signif", method="wilcox.test") +
   scale_y_continuous(limits=c(20, NA), 
                      breaks=c(1e2, 1e4, 1e6, 1e8, 1e10, 1e12),
                      labels=c("<LoD", "1e+04", "1e+06", 
                               "1e+08", "1e+10", "1e+12"),
                      trans="log10") +
-  labs(x=element_blank(),
+  labs(x=NULL,
        y="LASV GEq/g") +
-  guides(fill=guide_legend(override.aes=list(pch=21)),
-         shape=guide_legend(override.aes=list(fill="black"))) +
   theme(axis.text.x=element_text(angle=45, hjust=1),
         legend.position="bottom")
 ggsave("analysis/viremia-qpcr-tissues.png",
-       units="in", width=10, height=4)
+       units="in", width=6.5, height=4)
 
 ## clinical chemistry ----------------------------------------------------------
 chem <- df$chemistry %>%
-        # no change in uric acid, so remove that
+        # no change/values in uric acid, so remove that
         select(-`Uric acid (UA)`) %>%
         left_join(select(df$animals, Tattoo, Outcome, Dose), 
                   by="Tattoo") %>%
@@ -369,33 +337,46 @@ spaghetti <- levels(chem$Analyte) %>%
                 geom_line(aes(group=Tattoo, 
                               col=Dose)) +
                 geom_point(aes(color=Dose), 
+                           size=0.5,
                            na.rm=TRUE) +
                 scale_color_manual(values=cols.dose) +
-                scale_x_continuous(breaks=sample.dates) +
-                labs(x=element_blank(),
+                scale_x_continuous(breaks=breaks.dates) +
+                labs(x=NULL,
                      y=df$units[df$units$Analyte==i, "Units"], 
-                     title=i) +
+                     title=str_extract(i, "(?<=\\()[A-Z]+(?=\\))")) +
                 theme(legend.position="none",
                       plot.title=element_text(size=12))
             })
-names(spaghetti) <- levels(chem$Analyte)
+names(spaghetti) <- str_extract(levels(chem$Analyte), "(?<=\\()[A-Z]+(?=\\))")
 # pull out the legend
-legs <- spaghetti$`Glucose (GLU)` +
+legs <- spaghetti$GLU +
         theme(legend.position="bottom") +
-        labs(col="Challenge (PFU)",
-             shape="NHP",
-             linetype="NHP") +
-        guides(fill=guide_legend(override.aes=list(pch=21)),
-               shape=guide_legend(override.aes=list(fill="black")))
+        labs(col="PFU")
 legs <- cowplot::get_plot_component(legs, "guide-box-bottom")
-xlabel <- spaghetti$`Glucose (GLU)` +
+xlabel <- spaghetti$GLU +
           labs(x="Days postinfection")
 xlabel <- cowplot::get_plot_component(xlabel, "xlab-b")
 # plot all chemistry together
 x <- cowplot::plot_grid(plotlist=spaghetti, labels="AUTO", ncol=3)
-cowplot::plot_grid(x, xlabel, legs, ncol=1, rel_heights=c(17, 0.75, 1))
-ggsave("analysis/clinicalchemistry-spaghetti.png",
-       units="in", width=12, height=9)
+cowplot::plot_grid(x, xlabel, legs, ncol=1, rel_heights=c(20, 1, 1))
+ggsave("analysis/clinicalchemistry-spaghetti-all.png",
+       units="in", width=6.5, height=7)
+
+# save ALT, TP, and CRP separately for the main figure
+# add legend to CRP
+spaghetti$CRP <- spaghetti$CRP +
+                 labs(col=NULL) +
+                 theme(legend.position=c(0.85, 0.65))
+# add x-label to all
+cowplot::plot_grid(spaghetti$CRP + labs(x="Days postinfection"), 
+                   spaghetti$ALT + labs(x="Days postinfection"), 
+                   spaghetti$TP + labs(x="Days postinfection"), 
+                   nrow=1)
+ggsave("analysis/clinicalchemistry-spaghetti-selected.png",
+       units="in", width=6.5, height=2)
+
+# clean up
+rm(spaghetti, legs, xlabel, x)
 
 # are there differences in outcome at max value, or min value? 
 # pull out baseline, then calculate differences and pull the "most different"
@@ -416,9 +397,7 @@ comparison <- comparison %>%
               ungroup() %>%
               mutate(Comparison="Max") %>%
               rbind(y) %>%
-              select(Outcome, Comparison, Analyte, Concentration) %>%
-              # add in baseline and onset
-              rbind(x) 
+              select(Outcome, Comparison, Analyte, Concentration)
 # create a list of plots
 comparison <- levels(chem$Analyte) %>%
               lapply(function(i) {
@@ -435,24 +414,32 @@ comparison <- levels(chem$Analyte) %>%
                                              hide.ns=TRUE, 
                                              label="p.signif") +
                   scale_y_continuous(expand=expansion(mult=c(0.1, 0.2))) +
-                  labs(x=element_blank(),
+                  labs(x=NULL,
                        y=df$units[df$units$Analyte==i, "Units"],
                        title=str_extract(i, "(?<=\\()[A-Z]+(?=\\))")) +
                   theme(legend.position="none",
                         plot.title=element_text(size=12))
               })
-names(comparison) <- levels(chem$Analyte)
+names(comparison) <- str_extract(levels(chem$Analyte), "(?<=\\()[A-Z]+(?=\\))")
 # pull out the legend
-legs <- comparison$`Glucose (GLU)` + theme(legend.position="right")
-legs <- cowplot::get_plot_component(legs, "guide-box-right")
+legs <- comparison$GLU + theme(legend.position="bottom")
+legs <- cowplot::get_plot_component(legs, "guide-box-bottom")
 # plot all chemistry together
 x <- cowplot::plot_grid(plotlist=comparison, labels="AUTO", ncol=4)
-cowplot::plot_grid(x, legs, ncol=2, rel_widths=c(5, 1))
-ggsave("analysis/clinicalchemistry-peak-outcome.png",
-       units="in", width=8, height=6)
+cowplot::plot_grid(x, legs, ncol=1, rel_heights=c(15, 1))
+ggsave("analysis/clinicalchemistry-peak-all.png",
+       units="in", width=6.5, height=6)
+
+# save ALT, TP, and CRP separately for the main figure
+# format legend to right side
+legs <- comparison$GLU + theme(legend.position="right")
+legs <- cowplot::get_plot_component(legs, "guide-box-right")
+cowplot::plot_grid(comparison$CRP, comparison$ALT, comparison$TP, legs, nrow=1)
+ggsave("analysis/clinicalchemistry-peak-selected.png",
+       units="in", width=6.5, height=2)
 
 # clean up
-rm(chem, x, bl, legs, xlabel, spaghetti, comparison, y)
+rm(chem, x, bl, legs, comparison, y)
   
 ## hematology ------------------------------------------------------------------
 hema <- df$hematology %>%
@@ -470,10 +457,10 @@ spaghetti <- levels(hema$Analyte) %>%
                 filter(Analyte==i) %>%
                 ggplot(aes(DPI, Concentration)) +
                 geom_line(aes(group=Tattoo, col=Dose)) +
-                geom_point(aes(col=Dose)) +
+                geom_point(aes(col=Dose), size=0.5) +
                 scale_color_manual(values=cols.dose) +
-                scale_x_continuous(breaks=sample.dates) +
-                labs(x=element_blank(),
+                scale_x_continuous(breaks=breaks.dates) +
+                labs(x=NULL,
                      y=df$units[df$units$Analyte==i, "Units"],
                      title=i) +
                 theme(legend.position="none",
@@ -481,9 +468,9 @@ spaghetti <- levels(hema$Analyte) %>%
             })
 names(spaghetti) <- levels(hema$Analyte)
 # pull out the legend
-spaghetti$legs <- spaghetti$`Leukocytes` +
+spaghetti$legs <- spaghetti$Leukocytes +
                   theme(legend.position="right") +
-                  labs(col="Challenge (PFU)") 
+                  labs(col="PFU") 
 spaghetti$legs <- cowplot::get_plot_component(spaghetti$legs, "guide-box-right")
 xlabel <- spaghetti$Leukocytes +
           labs(x="Days postinfection")
@@ -492,8 +479,19 @@ xlabel <- cowplot::get_plot_component(xlabel, "xlab-b")
 x <- cowplot::plot_grid(plotlist=spaghetti, 
                         labels=LETTERS[1:length(spaghetti)-1], ncol=3)
 cowplot::plot_grid(x, xlabel, ncol=1, rel_heights=c(15, 1))
-ggsave("analysis/hematology-spaghetti.png",
-       units="in", width=12, height=9)
+ggsave("analysis/hematology-spaghetti-all.png",
+       units="in", width=6.5, height=6)
+
+# save lymphocytes, neutrophils, and platelets separately for the main figure
+cowplot::plot_grid(spaghetti$Lymphocytes + labs(x="Days postinfection"),
+                   spaghetti$Neutrophils + labs(x="Days postinfection"),
+                   spaghetti$Platelets + labs(x="Days postinfection"),
+                   nrow=1)
+ggsave("analysis/hematology-spaghetti-selected.png",
+       units="in", width=6.5, height=2)
+
+# clean up
+rm(spaghetti, xlabel, x)
 
 # are there differences in outcome at max or min value?
 # pull out baseline, then calculate differences and pull the "most different"
@@ -531,7 +529,7 @@ comparison <- levels(hema$Analyte) %>%
                                              hide.ns=TRUE, 
                                              label="p.signif") +
                   scale_y_continuous(expand=expansion(mult=c(0.1, 0.2))) +
-                  labs(x=element_blank(),
+                  labs(x=NULL,
                        y=df$units[df$units$Analyte==i, "Units"],
                        title=i) +
                   theme(plot.title=element_text(size=12),
@@ -539,18 +537,28 @@ comparison <- levels(hema$Analyte) %>%
               })
 names(comparison) <- levels(hema$Analyte)
 # pull out the legend
-comparison$legs <- comparison$Leukocytes + theme(legend.position="right")
-comparison$legs <- cowplot::get_plot_component(comparison$legs, 
-                                               "guide-box-right")
+legs <- comparison$Leukocytes + theme(legend.position="bottom")
+legs <- cowplot::get_plot_component(legs, "guide-box-bottom")
 # plot all hematology together
-cowplot::plot_grid(plotlist=comparison, 
-                   labels=LETTERS[1:length(comparison)-1], 
-                   ncol=3)
-ggsave("analysis/hematology-peak-outcome.png",
-       units="in", width=6, height=6)
+x <- cowplot::plot_grid(plotlist=comparison, 
+                        labels="AUTO", 
+                        ncol=4)
+cowplot::plot_grid(x, legs, ncol=1, rel_heights=c(10, 1))
+ggsave("analysis/hematology-peak-all.png",
+       units="in", width=6.5, height=4)
+
+# save lymphocytes, neutrophils, and platelets separately for the main figure
+legs <- comparison$Lymphocytes + theme(legend.position="right")
+legs <- cowplot::get_plot_component(legs, "guide-box-right")
+cowplot::plot_grid(comparison$Lymphocytes,
+                   comparison$Neutrophils,
+                   comparison$Platelets,
+                   legs, nrow=1)
+ggsave("analysis/hematology-peak-selected.png",
+       units="in", width=6.5, height=2)
 
 # clean up
-rm(hema, bl, xlabel, spaghetti, comparison, y)
+rm(hema, bl, xlabel, spaghetti, comparison, y, legs)
 
 ## PRNTs -----------------------------------------------------------------------
 # get the average plaques per sample
@@ -578,8 +586,10 @@ prnt <- prnt %>%
 # bound the % reduction to [0, 100]
 prnt$PercentReduction[prnt$PercentReduction < 0] <- 0
 
-# plot each NHP
+# plot each NHP by dose
 prnt %>%
+  left_join(df$animals, by="Tattoo") %>%
+  mutate(Dose=factor(Dose, labels=paste(levels(Dose), "PFU"))) %>%
   arrange(desc(DPI)) %>%
   ggplot(aes(`Dilution factor`, PercentReduction)) +
   geom_hline(yintercept=50, linetype=3) +
@@ -592,31 +602,34 @@ prnt %>%
   scale_x_continuous(breaks=unique(prnt$`Dilution factor`),
                      trans="log2") +
   ylim(0, 100) +
-  facet_wrap(~Tattoo) +
+  facet_wrap(~Dose, nrow=1) +
   labs(y="Neutralization (%)") +
   guides(fill=guide_legend(override.aes=list(pch=21)),
          shape=guide_legend(override.aes=list(fill="black"))) +
   theme(axis.text.x=element_text(angle=45, hjust=1, size=10))
 ggsave("analysis/prnts-curves.png",
-       units="in", width=7.5, height=6)
+       units="in", width=6.5, height=2)
 
-# plot maximum neutralization for each and compare outcomes
+# plot neutralization for each at the lowest dilution and compare outcomes
 prnt %>%
-  filter(`Dilution factor`==10) %>%
+  filter(`Dilution factor`==10,
+         DPI %in% c("Terminal", "35")) %>%
   group_by(Tattoo) %>%
   slice_max(order_by=PercentReduction, n=1, with_ties=FALSE) %>%
+  ungroup() %>%
   left_join(df$animals, by="Tattoo") %>%
   ggplot(aes(Outcome, PercentReduction)) +
   geom_boxplot(aes(fill=Outcome), alpha=0.5, outliers=FALSE) +
   geom_jitter(aes(fill=Outcome), pch=21, height=0, width=0.2) +
   scale_fill_manual(values=cols.outcome) +
   ylim(0, 100) +
-  ggpubr::stat_compare_means(comparisons=list(c("Succumbed", "Survived")),
-                             method="wilcox.test", label="p.signif") +
-  labs(y="Neutralization (%)") +
+  ggpubr::stat_pwc(method="wilcox.test", label="p.signif") +
+  labs(y="Neutralization (%)",
+       x="Outcome",
+       title="LASV neutralization") +
   theme(legend.position="none")
 ggsave("analysis/prnts-max.png",
-       units="in", width=4, height=4)
+       units="in", width=2.5, height=2.5)
 
 # clean up
 rm(prnt, vc)
@@ -670,9 +683,11 @@ elisas %>%
                      expand = expansion(mult = c(0.05, 0.1))) +
   ggpubr::stat_pvalue_manual(psig, label="p.adj.signif") +
   facet_wrap(~Immunoglobulin) +
-  labs(y="Endpoint titer")
+  labs(y="Endpoint titer",
+       x="LASV antigen",
+       title="ELISAs")
 ggsave("analysis/elisas-endpoint.png",
-       units="in", width=6, height=4)
+       units="in", width=4, height=2.5)
 
 # clean up
 rm(psig, elisas)
