@@ -1,5 +1,7 @@
 # Small particle aerosol infection of nonhuman primates with Lassa virus identifies previremic biomarkers and correlates of survival
 
+[![DOI](https://zenodo.org/badge/1033915430.svg)](https://doi.org/10.5281/zenodo.19359338)
+
 > Manuscript under review. Citation TBD.
 
 ## Analysis methods
