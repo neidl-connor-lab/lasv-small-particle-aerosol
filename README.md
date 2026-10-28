@@ -6,7 +6,7 @@
 
 ## Analysis methods
 
-All analyses were performed in R v4.5.3. Analyses other than Nanostring and LEGENDplex were performed with [`rstatix v0.7.3`](https://rpkgs.datanovia.com/rstatix/) and can be found in [`analysis.r`](analysis.r). Nonparametric tests were used where possible.
+All analyses were performed in R v4.6.1. Analyses other than Nanostring and LEGENDplex were performed with [`rstatix v1.1.0`](https://rpkgs.datanovia.com/rstatix/) and can be found in [`analysis.r`](analysis.r). Nonparametric tests were used where possible.
 
 ### Transcriptomics (Nanostring)
 
@@ -19,4 +19,4 @@ Circulating cytokines, thrombosis markers, and fibrinolysis analytes were measur
 
 ## Data availability
 
-The LV0043 genome consensus sequence is deposited in GenBank ([PX279630](https://www.ncbi.nlm.nih.gov/nuccore/PX279630) and [PX279631](https://www.ncbi.nlm.nih.gov/nuccore/PX279631)). Nanostring transcriptomic data can be found in NCBI GEO (ACCESSION). Circulating protein data can be found HERE. 
+The LV0043 genome consensus sequence is deposited in GenBank ([PX279630](https://www.ncbi.nlm.nih.gov/nuccore/PX279630) and [PX279631](https://www.ncbi.nlm.nih.gov/nuccore/PX279631)). Nanostring transcriptomic data can be found in NCBI GEO ([GSE329970](https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE329970)). 

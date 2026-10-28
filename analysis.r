@@ -73,7 +73,7 @@ fig1$A <- km %>%
           scale_x_continuous(breaks=breaks.dates) +
           labs(x="Days postinfection",
                y="Probability", 
-               col="PFU") +
+               col=NULL) +
           theme(legend.position="right")
 rm(pval, km)
 
@@ -116,6 +116,28 @@ df$animals %>%
   filter(Dose %in% c(10, 27.5)) %>%
   rstatix::wilcox_test(Death ~ Dose)
 
+
+# set up actual (presented) and target doses. no need to take log?
+ld50 <- df$animals %>%
+        mutate(Target=as.numeric(as.character(Dose)),
+               Presented=`Presented dose (DP)`,
+               Outcome=as.integer(Outcome)-1)
+
+# using target dose
+drc::drm(select(ld50, Outcome, Target),
+         fct=drc::LL.2(), 
+         type="binomial") %>%
+  drc::ED(c(10, 50, 90), interval="delta", display=FALSE) %>%
+  round(digits=1)
+
+# using presented dose
+drc::drm(select(ld50, Outcome, Presented),
+         fct=drc::LL.2(), 
+         type="binomial") %>%
+  drc::ED(c(10, 50, 90), interval="delta", display=FALSE) %>%
+  round(digits=1)
+rm(ld50)
+
 # scores
 # extract the challenge time and calculate time since challenge for all obs
 baseline <- df$scores %>%
@@ -128,17 +150,17 @@ scores <- df$scores %>%
           # calculate time (days) since exact challenge time
           left_join(baseline, by="NHP") %>%
           mutate(DPI=as.integer(Datetime-Challenge),
-                 DPI=DPI/(60*60*24)) %>%
+                 DPI=DPI/(60*60*24),
+                 Score=if_else(Score > 9, 9, Score)) %>%
           arrange(Dose)
 fig1$B <- scores %>%
           ggplot(aes(DPI, Score)) +
           geom_hline(yintercept=9, col="lightgrey", linetype=2) +
           geom_line(aes(col=Dose, group=NHP), linewidth=0.5, lineend="round") +
-          scale_color_manual(values=cols.dose) +
-          scale_x_continuous(breaks=breaks.dates) +
-          labs(x="Days postinfection",
-               y="Clinical score",
-               col="PFU") +
+          scale_color_manual(NULL, values=cols.dose) +
+          scale_y_continuous("Clinical score", breaks=c(0, 3, 6, 9),
+                             labels=c("0", "3", "6", "≥9")) +
+          scale_x_continuous("Days postinfection", breaks=breaks.dates) +
           guides(col=guide_legend(override.aes=list(linewidth=1))) +
           theme(legend.position=c(0.9, 0.7))
 
@@ -204,22 +226,21 @@ fig1$C <- appetite %>%
           arrange(Death) %>%
           mutate(NHP=factor(NHP, levels=unique(NHP)),
                  Dose=factor(Dose, 
-                             labels=paste(levels(appetite$Dose), "PFU"))) %>%
+                             labels=paste(levels(appetite$Dose), "PFU")),
+                 DPI=DPI-1) %>%
           # plot it
           ggplot(aes(DPI, NHP)) +
-          geom_tile(aes(alpha=Appetite, fill=Outcome), col="white") +
-          scale_fill_manual(values=cols.outcome) +
-          scale_alpha(range=c(1, 0)) +
-          scale_x_continuous(breaks=breaks.dates) +
+          geom_tile(aes(alpha=Appetite, fill=Outcome), col="black") +
+          scale_fill_manual(NULL, values=cols.outcome) +
+          scale_alpha(NULL, range=c(1, 0)) +
+          scale_x_continuous("Days postinfection", breaks=breaks.dates,
+                             expand=expansion(c(0, 0))) +
+          scale_y_discrete("AGM", expand=expansion(c(0, 0))) +
           facet_wrap(~Dose, ncol=1, scales="free_y") +
-          labs(x="Days postinfection",
-               y="",
-               fill=NULL,
-               title=NULL) +
           guides(alpha="none") +
           theme(legend.position="bottom",
                 axis.text.y=element_blank(),
-                axis.ticks.y=element_blank())
+                axis.ticks.y=element_line(color="transparent"))
 
 # define the first day of decrease without subsequent recovery in succumbing 
 # NHPs (1 PFU succumbed = 10 DPI)
@@ -296,34 +317,32 @@ viremia %>%
 
 # qRT-PCR
 fig1$D <- viremia %>%
-          ggplot(aes(DPI, `GEq/mL`+1e2)) +
+          mutate(`GEq/mL`=if_else(`GEq/mL`==0, 99, `GEq/mL`)) %>%
+          ggplot(aes(DPI, `GEq/mL`)) +
           geom_line(aes(col=Dose, group=NHP), linewidth=0.5, lineend="round") +
-          scale_color_manual(values=cols.dose) +
-          scale_y_continuous(limits=c(20, 1e13), 
-                             breaks=c(1e2, 1e4, 1e8, 1e12),
+          scale_color_manual(NULL, values=cols.dose) +
+          scale_y_continuous("N gene eq/mL",
+                             limits=c(99, NA), 
+                             breaks=c(99, 1e4, 1e8, 1e12),
                              labels=c("<LoD", "1e04", "1e+08", "1e+12"),
                              trans="log10") +
-          scale_x_continuous(breaks=breaks.dates) +
-          labs(x="Days postinfection",
-               y="N gene eq/mL",
-               col="PFU") +
+          scale_x_continuous("Days postinfection", breaks=breaks.dates) +
           guides(color=guide_legend(override.aes=list(linewidth=1))) +
           theme(legend.position=c(0.7, 0.6),
                 legend.background=element_blank())
 
 # plaque assay
 fig1$E <- viremia %>%
-          ggplot(aes(DPI, `PFU/mL`+24)) +
+          mutate(`PFU/mL`=if_else(`PFU/mL` < 25, 24, `PFU/mL`)) %>%
+          ggplot(aes(DPI, `PFU/mL`)) +
           geom_line(aes(group=NHP, col=Dose), linewidth=0.5, lineend="round") +
-          scale_color_manual(values=cols.dose) +
-          scale_y_continuous(limits=c(20, 1e13), 
-                             breaks=c(24, 1e4, 1e8, 1e12),
-                             labels=c("<LoD", "1e04",  "1e+08", "1e+12"),
+          scale_color_manual(NULL, values=cols.dose) +
+          scale_y_continuous("LASV PFU/mL",
+                             limits=c(24, 1e7), 
+                             breaks=c(24, 1e3, 1e5, 1e7),
+                             labels=c("<LoD", "1e03",  "1e+05", "1e+07"),
                              trans="log10") +
-          scale_x_continuous(breaks=breaks.dates) +
-          labs(x="Days postinfection",
-               y="LASV PFU/mL", 
-               col="PFU")  +
+          scale_x_continuous("Days postinfection", breaks=breaks.dates) +
           guides(color=guide_legend(override.aes=list(linewidth=1))) +
           theme(legend.position=c(0.9, 0.6))
 
@@ -353,98 +372,88 @@ viro.peaks <- viremia %>%
 viro.peaks %>%
   group_by(Assay) %>%
   rstatix::kruskal_test(value ~ Dose)
-# dunn post-hoc
-pval <- viro.peaks %>%
-        group_by(Assay) %>%
-        rstatix::dunn_test(value ~ Dose) %>%
-        rstatix::add_xy_position(y.trans=log10, scales="free_y")
-# plot these
+# plot with dunn post-hoc
 fig1$F <- viro.peaks %>%
           filter(Assay=="GEq/mL") %>%
-          ggplot(aes(Dose, value+1e2)) +
+          mutate(value=if_else(value==0, 99, value)) %>%
+          ggplot(aes(Dose, value)) +
           geom_boxplot(fill="grey", outliers=FALSE, alpha=0.5) +
           geom_jitter(aes(col=NHP, size=NHP), height=0, width=0.2) +
-          ggpubr::stat_pvalue_manual(data=filter(pval, Assay=="GEq/mL"), 
-                                     hide.ns=TRUE, label="p.adj.signif", 
-                                     step.increase=0.12, bracket.nudge.y=1) +
-          scale_color_manual(values=c("1-A"="#377eb8", "1-C"="#4daf4a"), 
+          ggpubr::stat_pwc(method="dunn.test", 
+                           hide.ns=TRUE, 
+                           label="p.adj.signif") +
+          scale_color_manual(NULL,
+                             values=c("1-A"="#377eb8", "1-C"="#4daf4a"), 
                              na.value="black") +
-          scale_size_manual(values=c("1-A"=2, "1-C"=2), na.value=1) +
-          scale_y_continuous(limits=c(NA, 1e16), 
-                             breaks=c(1e2, 1e4, 1e8, 1e12),
-                             labels=c("<LoD", "1e+04", "1e+08", "1e+12"),
+          scale_size_manual(NULL, values=c("1-A"=2, "1-C"=2), na.value=1) +
+          scale_y_continuous("N gene eq/mL",
+                             limits=c(99, NA), 
+                             breaks=c(99, 1e4, 1e8, 1e12),
+                             labels=c("<LoD", "1e04", "1e+08", "1e+12"),
+                             expand=expansion(c(0.05, 0.1)), 
                              trans="log10") +
-          labs(x="Challenge dose (PFU)",
-               y="N gene eq/mL",
-               col="AGM",
-               size="AGM") +
+          labs(x="Challenge dose (PFU)") +
           guides(color=guide_legend(override.aes=list(size=3)))
 fig1$G <- viro.peaks %>%
           filter(Assay=="PFU/mL") %>%
-          ggplot(aes(Dose, value+24)) +
+          mutate(value=if_else(value < 25, 24, value)) %>%
+          ggplot(aes(Dose, value)) +
           geom_boxplot(fill="grey", outliers=FALSE, alpha=0.5) +
           geom_jitter(aes(col=NHP, size=NHP), height=0, width=0.2) +
-          ggpubr::stat_pvalue_manual(data=filter(pval, Assay=="PFU/mL"), 
-                                     hide.ns=TRUE, label="p.adj.signif", 
-                                     step.increase=0.2, bracket.nudge.y=1) +
-          scale_color_manual(values=c("1-A"="#377eb8", "1-C"="#4daf4a"), 
+          ggpubr::stat_pwc(method="dunn.test", 
+                           hide.ns=TRUE, 
+                           label="p.adj.signif") +
+          scale_color_manual(NULL,
+                             values=c("1-A"="#377eb8", "1-C"="#4daf4a"), 
                              na.value="black") +
-          scale_size_manual(values=c("1-A"=2, "1-C"=2), na.value=1) +
-          scale_y_continuous(limits=c(NA, 1e16), 
-                             breaks=c(24, 1e4, 1e8, 1e12),
-                             labels=c("<LoD", "1e+04", "1e+08", "1e+12"),
+          scale_size_manual(NULL, values=c("1-A"=2, "1-C"=2), na.value=1) +
+          scale_y_continuous("LASV PFU/mL",
+                             limits=c(24, NA), 
+                             breaks=c(24, 1e3, 1e5, 1e7),
+                             labels=c("<LoD", "1e03",  "1e+05", "1e+07"),
+                             expand=expansion(c(0.05, 0.1)),
                              trans="log10") +
-          labs(x="Challenge dose (PFU)",
-               y="LASV PFU/mL",
-               col="AGM",
-               size="AGM") +
+          labs(x="Challenge dose (PFU)") +
           guides(color=guide_legend(override.aes=list(size=3)))
 
 # now test peak again but by outcome
-pval <- viro.peaks %>%
-        group_by(Assay) %>%
-        rstatix::wilcox_test(value ~ Outcome) %>%
-        rstatix::add_significance() %>%
-        rstatix::add_xy_position(y.trans=log10, scales="free_y")
 sup1$A <- viro.peaks %>%
           filter(Assay=="GEq/mL") %>%
-          ggplot(aes(Outcome, value+1e2)) +
+          mutate(value=if_else(value==0, 99, value)) %>%
+          ggplot(aes(Outcome, value)) +
           geom_boxplot(fill="grey", outliers=FALSE, alpha=0.5) +
           geom_jitter(aes(col=NHP, size=NHP), height=0, width=0.2) +
-          ggpubr::stat_pvalue_manual(data=filter(pval, Assay=="GEq/mL"), 
-                                     bracket.nudge.y=1) +
-          scale_color_manual(values=c("1-A"="#377eb8", "1-C"="#4daf4a"),
+          ggpubr::stat_pwc(label="p.signif") +
+          scale_color_manual(NULL, values=c("1-A"="#377eb8", "1-C"="#4daf4a"),
                              na.value="black") +
-          scale_size_manual(values=c("1-A"=2, "1-C"=2), na.value=1) +
-          scale_y_continuous(limits=c(NA, 1e16), 
-                             breaks=c(1e2, 1e4, 1e8, 1e12),
-                             labels=c("<LoD", "1e+04", "1e+08", "1e+12"),
+          scale_size_manual(NULL, values=c("1-A"=2, "1-C"=2), na.value=1) +
+          scale_y_continuous("N gene eq/mL",
+                             limits=c(99, NA), 
+                             breaks=c(99, 1e4, 1e8, 1e12),
+                             labels=c("<LoD", "1e04", "1e+08", "1e+12"),
+                             expand=expansion(c(0.05, 0.1)), 
                              trans="log10") +
-          labs(x=NULL,
-               y="N gene eq/mL",
-               col="AGM",
-               size="AGM") +
+          labs(x=NULL) +
           guides(color=guide_legend(override.aes=list(size=3))) +
           theme(axis.text.x=element_text(angle=30, hjust=1))
 sup1$B <- viro.peaks %>%
           filter(Assay=="PFU/mL") %>%
-          ggplot(aes(Outcome, value+24)) +
+          mutate(value=if_else(value==0, 24, value)) %>%
+          ggplot(aes(Outcome, value)) +
           geom_boxplot(fill="grey", outliers=FALSE, alpha=0.5) +
           geom_jitter(aes(col=NHP, size=NHP), height=0, width=0.2) +
-          ggpubr::stat_pvalue_manual(data=filter(pval, Assay=="PFU/mL"), 
-                                     bracket.nudge.y=1) + 
-          scale_color_manual(values=c("1-A"="#377eb8", "1-C"="#4daf4a"),
+          ggpubr::stat_pwc(label="p.signif") +
+          scale_color_manual(NULL, values=c("1-A"="#377eb8", "1-C"="#4daf4a"),
                              na.value="black") +
-          scale_size_manual(values=c("1-A"=2, "1-C"=2),
+          scale_size_manual(NULL, values=c("1-A"=2, "1-C"=2),
                             na.value=1) +
-          scale_y_continuous(limits=c(NA, 1e16), 
-                             breaks=c(1e2, 1e4, 1e8, 1e12),
-                             labels=c("<LoD", "1e+04", "1e+08", "1e+12"),
+          scale_y_continuous("LASV PFU/mL",
+                             limits=c(24, NA), 
+                             breaks=c(24, 1e3, 1e5, 1e7),
+                             labels=c("<LoD", "1e03",  "1e+05", "1e+07"),
+                             expand=expansion(c(0.05, 0.1)),
                              trans="log10") +
-          labs(x=NULL,
-               y="LASV PFU/mL",
-               col="AGM",
-               size="AGM")  +
+          labs(x=NULL)  +
           guides(color=guide_legend(override.aes=list(size=3)))  +
           theme(axis.text.x=element_text(angle=30, hjust=1))
 
@@ -455,28 +464,27 @@ viro.peaks %>%
             Min=min(value))
 
 # clean up
-rm(viremia, viro.peaks, pval)
+rm(viremia, viro.peaks)
 
 # tissue virology
 sup1$C <- df$virology.tissues %>%
           filter(Tissue != "Aqueous humor") %>%
           left_join(df$animals, by="NHP") %>%
-          ggplot(aes(Tissue, `GEq/g`+1e4)) +
+          mutate(`GEq/g`=if_else(`GEq/g`==0, 1e4-1, `GEq/g`)) %>%
+          ggplot(aes(Tissue, `GEq/g`)) +
           geom_boxplot(aes(fill=Outcome, col=Outcome), alpha=0.5, na.rm=TRUE,
                        outlier.size=0.5) +
           ggpubr::stat_compare_means(aes(group=interaction(Outcome, Tissue)), 
                                      method="wilcox.test", label="p.signif",
                                      angle=90, vjust=1, hjust=0) +
-          scale_fill_manual(values=cols.outcome) +
-          scale_color_manual(values=cols.outcome) +
-          scale_y_continuous(breaks=c(1e4, 1e8, 1e12),
+          scale_fill_manual(NULL, values=cols.outcome) +
+          scale_color_manual(NULL, values=cols.outcome) +
+          scale_y_continuous("N gene eq/g",
+                             breaks=c(1e4-1, 1e8, 1e12),
                              labels=c("<LoD", "1e+08", "1e+12"),
                              trans="log10", 
                              expand=expansion(mult=c(0.1, 0.2))) +
-          labs(x=NULL,
-               y="N gene eq/g",
-               fill=NULL,
-               col=NULL) +
+          labs(x=NULL) +
           theme(axis.text.x=element_text(angle=60, hjust=1),
                 legend.position="bottom")
 
@@ -505,54 +513,33 @@ rm(chem, hema)
 # add group for plotting
 clinpath$Group <- factor(clinpath$Outcome, levels=names(cols.group))
 clinpath$Group[clinpath$NHP=="1-C"] <- "1-C"
-# date a "datetime" variable for terminals
+# add a "datetime" variable and merge terminal < D14 with D14
 clinpath$Datetime <- clinpath$DPI
-clinpath$Datetime[(clinpath$DPI != 35) & (clinpath$DPI==clinpath$Death)] <- "Terminal"
-clinpath$Datetime <- factor(clinpath$Datetime, levels=unique(clinpath$Datetime))
+clinpath$Datetime[(clinpath$DPI != 35) & 
+                  (clinpath$DPI==clinpath$Death) &
+                  (clinpath$Death < 14)] <- 14
+clinpath$Datetime <- factor(clinpath$Datetime, 
+                            levels=c(0, 3, 4, 5, 10, 14, 21, 28, 35))
 
 # when do we see changes per analyte in succumbing animals?
-# not all animals have D14, so using KW instead of Friedman
-analytes <- clinpath %>%
-            filter(Outcome=="Succumbed") %>%
-            mutate(Datetime=droplevels(Datetime)) %>%
-            group_by(Analyte) %>%
-            rstatix::kruskal_test(Concentration ~ Datetime) %>%
-            rstatix::p_format(new.col=TRUE, digits=1) %>%
-            filter(p < 0.05) 
-# run Dunn post-hoc and filter for comparisons relative to D0/baseline
+# using paired (Freidman pipeline). Exclude 1-C as well so survived=aviremic
 clinpath %>%
-  filter(Outcome=="Succumbed",
-         Analyte %in% analytes$Analyte) %>%
-  mutate(Datetime=droplevels(Datetime)) %>%
-  group_by(Analyte) %>%
-  rstatix::dunn_test(Concentration ~ Datetime) %>%
-  rstatix::p_format(new.col=TRUE, digits=1) %>%
+  filter(!is.na(Datetime),
+         NHP != "1-C") %>%
+  group_by(Analyte, Outcome) %>%
+  rstatix::friedman_test(Concentration ~ Datetime | NHP) %>%
+  filter(p < 0.05) %>%
+  select(Analyte, Outcome) %>% 
+  # add back data for outcome/analytes that pass friedman
+  left_join(filter(clinpath, !is.na(Datetime)), by=colnames(.)) %>%
+  group_by(Analyte, Outcome) %>%
+  rstatix::friedman_nemenyi_test(Concentration ~ Datetime | NHP) %>%
+  # only keep comparisons that are significantly different from baseline
   filter(group1==0,
-         p.adj < 0.05)
-
-# what about aviremic surviving animals?
-# we could use friedman, but need to compare to succumbed AGMs -- 
-# using KW to be consistent
-analytes <- clinpath %>%
-            filter(Outcome=="Survived",
-                   NHP != "D8993") %>%
-            mutate(Datetime=droplevels(Datetime)) %>%
-            group_by(Analyte) %>%
-            rstatix::kruskal_test(Concentration ~ Datetime) %>%
-            rstatix::p_format(new.col=TRUE, digits=1) %>%
-            filter(p < 0.05) 
-# run Dunn post-hoc and filter for comparisons relative to D0/baseline
-clinpath %>%
-  filter(Outcome=="Survived",
-         NHP != "D8993",
-         Analyte %in% analytes$Analyte) %>%
-  mutate(Datetime=droplevels(Datetime)) %>%
-  group_by(Analyte) %>%
-  rstatix::dunn_test(Concentration ~ Datetime) %>%
-  rstatix::p_format(new.col=TRUE, digits=1) %>%
-  filter(group1==0,
-         p.adj < 0.05)
-rm(analytes)
+         p.adj < 0.05) %>%
+  rstatix::p_format(accuracy=1e-4, digits=3) %>% 
+  select(Outcome, Analyte, group2, p.adj) %>%
+  filter(Outcome=="Survived")
 
 # plot all clinical chemistry spaghetti
 analytes <- clinpath %>%
@@ -613,92 +600,118 @@ fig3$E <- sup4$ALT
 # get baseline, min, and max per animal per analyte
 baseline <- clinpath %>%
             filter(DPI==0) %>%
-            mutate(Comparison="D0") %>%
-            select(Comparison, Analyte, Concentration, Group, Outcome, Type)
+            mutate(Comparison="D0")
 conc.min <- clinpath %>%
             group_by(Analyte, NHP) %>%
             slice_min(order_by=Concentration, n=1, with_ties=FALSE) %>%
             ungroup() %>%
-            mutate(Comparison="Min") %>%
-            select(colnames(baseline))
+            mutate(Comparison="Min") 
 conc.max <- clinpath %>%
             group_by(Analyte, NHP) %>%
             slice_max(order_by=Concentration, n=1, with_ties=FALSE) %>%
             ungroup() %>%
-            mutate(Comparison="Max") %>%
-            select(colnames(baseline))
+            mutate(Comparison="Max") 
 clinpath <- baseline %>%
             rbind(conc.min) %>%
             rbind(conc.max)
 rm(conc.min, conc.max, baseline)
 
-# plot all chemistry
-analytes <- clinpath %>%
-            filter(Type=="chem") %>%
-            select(Analyte) %>%
-            unlist() %>%
-            droplevels() %>%
-            levels()
-# create a list of plots
-sup6 <- analytes %>%
-        lapply(function(i) {
-          clinpath %>%
-            filter(Analyte==i) %>%
-            ggplot(aes(Comparison, Concentration)) +
-            geom_boxplot(aes(group=interaction(Outcome, Comparison)),
-                         fill="lightgrey", col="black",
-                         alpha=0.5, outliers=FALSE) +
-            geom_point(aes(group=interaction(Outcome, Comparison),
-                           col=Group, size=Group), 
-                       position=position_jitterdodge(jitter.height=0)) +
-            scale_color_manual(values=cols.group) +
-            scale_size_manual(values=c("1-C"=1), na.value=0.5) +
-            ggpubr::stat_compare_means(aes(group=interaction(Comparison, 
-                                                             Outcome)), 
-                                       method="wilcox.test",
-                                       hide.ns=TRUE, 
-                                       label="p.signif") +
-            scale_y_continuous(expand=expansion(mult=c(0.1, 0.2))) +
-            labs(x=NULL,
-                 y=df$units[df$units$Analyte==i, "Units"],
-                 title=i) +
-            theme(legend.position="none")
-        })
-names(sup6) <- analytes
 
+# compare min/max to baseline (FN pipeline)
+p.fn <- clinpath %>%
+        group_by(Outcome, Analyte) %>%
+        rstatix::friedman_test(Concentration ~ Comparison | NHP) %>%
+        filter(p < 0.05) %>%
+        select(Outcome, Analyte) %>%
+        left_join(clinpath, by=colnames(.)) %>%
+        group_by(Outcome, Analyte) %>%
+        rstatix::friedman_nemenyi_test(Concentration ~ Comparison | NHP) %>%
+        filter(p.adj < 0.05, 
+               group1=="D0") %>%
+        # add x positions
+        mutate(xmin=1, 
+               xmax=if_else(group2=="Max", 2, 3),
+               xnudge=factor(Outcome, labels=c(-0.2, 0.2)),
+               xnudge=as.numeric(as.character(xnudge)),
+               xmax=xmax+xnudge,
+               xmin=xmin+xnudge) %>%
+        arrange(xmax)
+# compare between outcomes (MWU test)
+p.mw <- clinpath %>%
+        group_by(Analyte, Comparison) %>%
+        rstatix::wilcox_test(Concentration ~ Outcome) %>%
+        filter(p < 0.05) %>%
+        rstatix::add_significance() %>%
+        rstatix::add_y_position(step.increase=0) %>%
+        mutate(xmin=as.numeric(factor(Comparison)),
+               xmax=xmin)
+
+# plot all analytes
+analytes <- unique(clinpath$Analyte) %>%
+            lapply(function(i) {
+              # subset data
+              cmat <- filter(clinpath, Analyte==i)
+              
+              # init increment and ypos
+              increment <- 0.15*diff(range(cmat$Concentration))
+              ypos <- max(cmat$Concentration)+increment
+              
+              # init plot
+              p <- cmat %>%
+                    ggplot(aes(Comparison, Concentration)) +
+                    geom_boxplot(aes(group=interaction(Outcome, Comparison)),
+                                 fill="lightgrey", col="black",
+                                 alpha=0.5, outliers=FALSE) +
+                    geom_point(aes(group=interaction(Outcome, Comparison),
+                                   col=Group, size=Group), 
+                               position=position_jitterdodge(jitter.height=0)) +
+                    scale_color_manual(values=cols.group) +
+                    scale_size_manual(values=c("1-C"=1), na.value=0.5) +
+                    scale_y_continuous(df$units[df$units$Analyte==i, "Units"],
+                                       expand=expansion(mult=c(0.1, 0.2))) +
+                    labs(x=NULL, title=i) +
+                    theme(legend.position="none")
+              
+              # add outcome comparisons
+              pval <- filter(p.mw, Analyte==i)
+              if(nrow(pval) > 0) {
+                pval$y.position <- pval$y.position+increment
+                p <- p + ggpubr::stat_pvalue_manual(data=pval, 
+                                                    remove.bracket=TRUE)
+                # increment ypos, if necessary
+                ypos <- max(c(ypos, pval$y.position))
+              }
+              
+              # add baseline comparisons
+              pval <- filter(p.fn, Analyte==i)
+              if(nrow(pval) > 0) {
+                pval$y.position <- increment*(1:nrow(pval))
+                pval$y.position <- pval$y.position + ypos
+                p <- p + ggpubr::stat_pvalue_manual(data=pval, color="Outcome")
+              }
+              
+              # fin
+              return(p)
+            })
+names(analytes) <- unique(clinpath$Analyte)
+rm(p.fn, p.mw)
+
+# plot all chemistry
+sup6 <- clinpath %>%
+        filter(Type=="chem") %>%
+        select(Analyte) %>%
+        unlist() %>%
+        droplevels() %>%
+        levels()
+sup6 <- analytes[sup6]
 # plot all hematology
-analytes <- clinpath %>%
-            filter(Type=="hema") %>%
-            select(Analyte) %>%
-            unlist() %>%
-            droplevels() %>%
-            levels()
-# create a list of plots
-sup5 <- analytes %>%
-        lapply(function(i) {
-          clinpath %>%
-            filter(Analyte==i) %>%
-            ggplot(aes(Comparison, Concentration)) +
-            geom_boxplot(aes(group=interaction(Outcome, Comparison)),
-                         fill="lightgrey", col="black",
-                         alpha=0.5, outliers=FALSE) +
-            geom_point(aes(group=interaction(Outcome, Comparison),
-                           col=Group, size=Group), 
-                       position=position_jitterdodge(jitter.height=0)) +
-            scale_color_manual(values=cols.group) +
-            scale_size_manual(values=c("1-C"=1), na.value=0.5) +
-            ggpubr::stat_compare_means(aes(group=interaction(Comparison, 
-                                                             Outcome)), 
-                                       method="wilcox.test",
-                                       hide.ns=TRUE, 
-                                       label="p.signif") +
-            scale_y_continuous(expand=expansion(mult=c(0.1, 0.2))) +
-            labs(x=NULL,
-                 y=df$units[df$units$Analyte==i, "Units"],
-                 title=i) +
-            theme(legend.position="none")
-        })
-names(sup5) <- analytes
+sup5 <- clinpath %>%
+        filter(Type=="hema") %>%
+        select(Analyte) %>%
+        unlist() %>%
+        droplevels() %>%
+        levels()
+sup5 <- analytes[sup5]
 
 # subset selected peaks
 fig3$F <- sup6$ALB
@@ -708,7 +721,7 @@ fig3$I <- sup6$CRP
 fig3$J <- sup6$ALT
 
 # clean up
-rm(clinpath)
+rm(clinpath, analytes)
 
 ## ELISAs ----------------------------------------------------------------------
 # over time -- very messy
@@ -737,17 +750,9 @@ elisas <- df$ELISAs %>%
           left_join(df$animals, by="NHP")
 elisas$Group <- factor(elisas$Outcome, levels=names(cols.group))
 elisas$Group[elisas$NHP=="1-C"] <- "1-C"
-
-# get p-value significance
-psig <- elisas %>%
-        mutate(Titer=log10(Titer+1)) %>%
-        group_by(Immunoglobulin, Antigen) %>%
-        rstatix::wilcox_test(Titer ~ Outcome) %>%
-        rstatix::adjust_pvalue() %>%
-        rstatix::add_significance() %>%
-        rstatix::add_xy_position(x="Antigen")
 # add pseudocount to samples <LOD
 elisas$Titer[elisas$Titer==0] <- 50
+
 # plot it and add statistical comparisons
 fig6$A <- elisas %>%
           ggplot(aes(Antigen, Titer)) +
@@ -757,24 +762,21 @@ fig6$A <- elisas %>%
           geom_point(aes(group=interaction(Antigen, Outcome), 
                          size=Group, col=Group), 
                      position=position_jitterdodge()) +
-          scale_color_manual(values=cols.group) +
-          scale_size_manual(values=c("1-C"=1), na.value=0.5) +
-          ggpubr::stat_pvalue_manual(psig, label="p.adj.signif") +
-          scale_y_continuous(breaks=c(50, 200, 1000, 10000),
+          scale_color_manual(NULL, values=cols.group) +
+          scale_size_manual(NULL, values=c("1-C"=1), na.value=0.5) +
+          ggpubr::stat_pwc(aes(group=Outcome), label="p.signif") +
+          scale_y_continuous("Endpoint titer",
+                             breaks=c(50, 200, 1000, 10000),
                              labels=c("<LOD", 200, 1000, "10,000"),
                              trans="log10",
                              expand = expansion(mult = c(0.05, 0.1))) +
           facet_wrap(~Immunoglobulin) +
-          labs(y="Endpoint titer",
-               x="LASV antigen",
-               col=NULL,
-               title="ELISAs") +
-          guides(fill="none",
-                 size="none",
+          labs(x="LASV antigen", title="ELISAs") +
+          guides(fill="none", size="none", 
                  col=guide_legend(override.aes=list(size=3)))
   
 # clean up
-rm(psig, elisas)
+rm(elisas)
 
 ## PRNTs -----------------------------------------------------------------------
 # get the average plaques per sample
@@ -830,35 +832,27 @@ sup8 <- prnt %>%
         theme(axis.text.x=element_text(angle=45, hjust=1, size=10))
 
 # plot neutralization for each at the lowest dilution and compare outcomes
-prnt <- prnt %>%
-        filter(`Dilution factor`==10,
-               DPI %in% c("Terminal", "35")) %>%
-        group_by(NHP) %>%
-        slice_max(order_by=PercentReduction, n=1, with_ties=FALSE) %>%
-        ungroup()
-pval <- prnt %>%
-        rstatix::wilcox_test(PercentReduction ~ Outcome) %>%
-        rstatix::add_significance() %>%
-        rstatix::add_xy_position(x="Outcome")
-pval
 fig6$B <- prnt %>%
+          filter(`Dilution factor`==10,
+                 DPI %in% c("Terminal", "35")) %>%
+          group_by(NHP) %>%
+          slice_max(order_by=PercentReduction, n=1, with_ties=FALSE) %>%
+          ungroup() %>%
           ggplot(aes(Outcome, PercentReduction)) +
           geom_hline(yintercept=50, linetype=3) +
           geom_boxplot(alpha=0.5, outliers=FALSE, 
                        col="black", fill="lightgrey") +
           geom_jitter(aes(col=Group, size=Group), height=0, width=0.2) +
-          scale_color_manual(values=cols.group) +
-          scale_size_manual(values=c("1-C"=1), na.value=0.5) +
-          ylim(0, 100) +
-          ggpubr::stat_pvalue_manual(data=pval, label="p.signif", 
-                                     bracket.nudge.y=5) +
-          labs(y="Neutralization (%)",
-               x="Outcome",
+          ggpubr::stat_pwc(aes(group=Outcome), label="p.signif") +
+          scale_color_manual(NULL, values=cols.group) +
+          scale_size_manual(NULL, values=c("1-C"=1), na.value=0.5) +
+          scale_y_continuous("LASV neutralization", limits=c(0, 100)) +
+          labs(x="Outcome",
                title="LASV neutralization") +
           theme(legend.position="none")
 
 # clean up
-rm(prnt, vc, pval)
+rm(prnt, vc)
 
 ## assemble figures ------------------------------------------------------------
 # figure 1
