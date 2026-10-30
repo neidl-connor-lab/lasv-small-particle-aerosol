@@ -119,8 +119,8 @@ fig4$A <- meta %>%
           annotate("segment", x=0, xend=35, y=0, linewidth=1) +
           geom_point(aes(fill=Stage), pch=21, size=3) +
           scale_fill_manual(NULL, values=cols.stage) +
-          geom_text(aes(label=DPI), y=1.75, size=3) +
-          ylim(-1, 2) +
+          geom_text(aes(label=DPI), y=2.6, size=3) +
+          ylim(-1, 3.2) +
           theme_void() +
           theme(legend.position="top")
 
@@ -506,7 +506,7 @@ y <- cowplot::plot_grid(plotlist=fig4[c("F", "G", "H", "I")],
 x <- cowplot::plot_grid(x, y, ncol=2)
 cowplot::plot_grid(fig4$A, x, ncol=1, 
                    labels=c("A", NA), 
-                   rel_heights=c(0.65, 8.3))
+                   rel_heights=c(0.95, 8.3))
 ggsave("analysis/figure4.pdf", units="in", width=6.5, height=9)
 
 # clean up
