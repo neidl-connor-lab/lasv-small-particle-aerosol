@@ -43,9 +43,11 @@ run.pca <- function(logconcentration.mat, meta.mat) {
   # return outputs
   list(pca=pca, contribs=contribs, pcs=pcs)
 }
-run.de <- function(logconcentration.mat, model.mat, contrasts.obj) {
+run.de <- function(logconcentration.mat, model.mat, contrasts.obj, block) {
+  # estimate within-animal correlation, then fit with animal as a block
+  corfit <- duplicateCorrelation(logconcentration.mat, model.mat, block=block)
   logconcentration.mat %>%
-    lmFit(model.mat) %>%
+    lmFit(model.mat, block=block, correlation=corfit$consensus) %>%
     contrasts.fit(contrasts.obj) %>%
     eBayes()
 }
@@ -92,7 +94,10 @@ cmat <- readxl::read_excel("data.xlsx", "legendplex.concentration") %>%
                   .groups="drop") %>%
         # remove selected analytes, then remove panel names since no more dups
         filter(!(Analyte %in% discard.pile)) %>%
-        mutate(Analyte=str_remove(Analyte, "_.+")) %>%
+        # the workbook types IFN-γ with an ASCII "y"; every other analyte
+        # uses the proper Greek letter, so correct it here
+        mutate(Analyte=str_remove(Analyte, "_.+"),
+               Analyte=str_replace(Analyte, "^IFN-y$", "IFN-γ")) %>%
         # format with analytes in rows and samples in columns
         reshape2::dcast(Analyte ~ ID, value.var="Concentration") %>%
         column_to_rownames("Analyte") %>%
@@ -206,7 +211,7 @@ contrs <- makeContrasts(Early - Baseline,
 # make DE model
 res.viro <- cmat[, rownames(m)] %>%
             log2() %>%
-            run.de(model, contrs)
+            run.de(model, contrs, m$NHP)
 
 # extract results table, format, and save
 res.viro <- colnames(contrs) %>%
@@ -256,7 +261,7 @@ contrs <- makeContrasts(Early - Baseline,
 # make DE model
 res.avir <- cmat[, rownames(m)] %>%
             log2() %>%
-            run.de(model, contrs)
+            run.de(model, contrs, m$NHP)
 
 # extract results table, format, and save
 res.avir <- colnames(contrs) %>%
