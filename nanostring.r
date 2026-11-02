@@ -52,12 +52,19 @@ run.pca <- function(counts.mat, meta.mat) {
   # return outputs
   list(pca=pca, contribs=contribs, pcs=pcs)
 }
-run.de <- function(counts.mat, model.mat, contrasts.obj) {
-  counts.mat %>%
-    DGEList() %>%
-    calcNormFactors() %>%
-    voom(model.mat) %>%
-    lmFit() %>%
+run.de <- function(counts.mat, model.mat, contrasts.obj, block) {
+  # normalise, then voom once to get weights for the first correlation estimate
+  dge <- counts.mat %>%
+         DGEList() %>%
+         calcNormFactors()
+  vm <- voom(dge, model.mat)
+  # estimate within-animal correlation, refine the weights, re-estimate
+  corfit <- duplicateCorrelation(vm, model.mat, block=block)
+  vm <- voom(dge, model.mat, block=block, correlation=corfit$consensus)
+  corfit <- duplicateCorrelation(vm, model.mat, block=block)
+  # fit with animal as a blocking factor
+  vm %>%
+    lmFit(model.mat, block=block, correlation=corfit$consensus) %>%
     contrasts.fit(contrasts.obj) %>%
     eBayes()
 }
@@ -112,8 +119,8 @@ fig4$A <- meta %>%
           annotate("segment", x=0, xend=35, y=0, linewidth=1) +
           geom_point(aes(fill=Stage), pch=21, size=3) +
           scale_fill_manual(NULL, values=cols.stage) +
-          geom_text(aes(label=DPI), y=1.75, size=3) +
-          ylim(-1, 2) +
+          geom_text(aes(label=DPI), y=2.6, size=3) +
+          ylim(-1, 3.2) +
           theme_void() +
           theme(legend.position="top")
 
@@ -187,7 +194,7 @@ contrs <- makeContrasts(Early - Baseline,
 # make DE model
 res.viro <- cmat[, rownames(m)] %>%
             format.counts() %>%
-            run.de(model, contrs)
+            run.de(model, contrs, m$NHP)
 
 # extract results table, format, and save
 res.viro <- colnames(contrs) %>%
@@ -244,7 +251,7 @@ contrs <- makeContrasts(Early - Baseline,
 # make DE model
 res.avir <- cmat[, rownames(m)] %>%
             format.counts() %>%
-            run.de(model, contrs)
+            run.de(model, contrs, m$NHP)
 
 # extract results table, format, and save
 res.avir <- colnames(contrs) %>%
@@ -291,7 +298,8 @@ rm(topgenes, m, contrs, model)
 ipa.pathlist <- read.csv("analysis/ipa-shortlist.csv")
 
 # load IPA data and subset
-ipa.pathlist <- read.delim("analysis/ipa-output.tsv") %>%
+# IPA writes missing z-scores as "N/A", so read those as NA to keep columns numeric
+ipa.pathlist <- read.delim("analysis/ipa-output.tsv", na.strings=c("NA", "N/A")) %>%
                 right_join(ipa.pathlist, by="Canonical.Pathways") %>%
                 mutate(Nickname=factor(Nickname, 
                                        levels=ipa.pathlist$Nickname)) %>%
@@ -344,7 +352,7 @@ contrs <- makeContrasts(Early - Baseline,
                         levels=colnames(model))
 ldv <- cmat[, rownames(m)] %>%
        format.counts() %>%
-       run.de(model, contrs)
+       run.de(model, contrs, m$NHP)
 ldv <- colnames(contrs) %>%
        lapply(format.results, ebayes.out=ldv) %>%
        do.call(rbind, .) %>%
@@ -365,7 +373,7 @@ contrs <- makeContrasts(Early - Baseline,
                         levels=colnames(model))
 hd <- cmat[, rownames(m)] %>%
       format.counts() %>%
-      run.de(model, contrs)
+      run.de(model, contrs, m$NHP)
 hd <- colnames(contrs) %>%
       lapply(format.results, ebayes.out=hd) %>%
       do.call(rbind, .) %>%
@@ -498,7 +506,7 @@ y <- cowplot::plot_grid(plotlist=fig4[c("F", "G", "H", "I")],
 x <- cowplot::plot_grid(x, y, ncol=2)
 cowplot::plot_grid(fig4$A, x, ncol=1, 
                    labels=c("A", NA), 
-                   rel_heights=c(0.65, 8.3))
+                   rel_heights=c(0.95, 8.3))
 ggsave("analysis/figure4.pdf", units="in", width=6.5, height=9)
 
 # clean up

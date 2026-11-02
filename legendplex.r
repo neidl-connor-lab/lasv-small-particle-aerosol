@@ -43,9 +43,11 @@ run.pca <- function(logconcentration.mat, meta.mat) {
   # return outputs
   list(pca=pca, contribs=contribs, pcs=pcs)
 }
-run.de <- function(logconcentration.mat, model.mat, contrasts.obj) {
+run.de <- function(logconcentration.mat, model.mat, contrasts.obj, block) {
+  # estimate within-animal correlation, then fit with animal as a block
+  corfit <- duplicateCorrelation(logconcentration.mat, model.mat, block=block)
   logconcentration.mat %>%
-    lmFit(model.mat) %>%
+    lmFit(model.mat, block=block, correlation=corfit$consensus) %>%
     contrasts.fit(contrasts.obj) %>%
     eBayes()
 }
@@ -92,7 +94,10 @@ cmat <- readxl::read_excel("data.xlsx", "legendplex.concentration") %>%
                   .groups="drop") %>%
         # remove selected analytes, then remove panel names since no more dups
         filter(!(Analyte %in% discard.pile)) %>%
-        mutate(Analyte=str_remove(Analyte, "_.+")) %>%
+        # the workbook types IFN-γ with an ASCII "y"; every other analyte
+        # uses the proper Greek letter, so correct it here
+        mutate(Analyte=str_remove(Analyte, "_.+"),
+               Analyte=str_replace(Analyte, "^IFN-y$", "IFN-γ")) %>%
         # format with analytes in rows and samples in columns
         reshape2::dcast(Analyte ~ ID, value.var="Concentration") %>%
         column_to_rownames("Analyte") %>%
@@ -182,8 +187,10 @@ fig5$B <- pca$contribs %>%
           geom_hline(yintercept=0, linetype=3, col="lightgrey") +
           geom_segment(aes(x=0, y=0, xend=PC1, yend=PC2), col="darkgrey",
                        alpha=0.9, arrow=arrow(length=unit(0.05, "in"))) +
-          ggrepel::geom_text_repel(aes(PC1, PC2, label=Gene), 
-                                   size=2, fontface="bold") +
+          ggrepel::geom_text_repel(aes(PC1, PC2, label=Gene),
+                                   size=2.4, fontface="bold",
+                                   box.padding=0.3, max.overlaps=Inf,
+                                   min.segment.length=0.2, seed=42) +
           labs(x=pca$pcs[1],
                y=pca$pcs[2]) +
           theme(legend.position="none")
@@ -206,7 +213,7 @@ contrs <- makeContrasts(Early - Baseline,
 # make DE model
 res.viro <- cmat[, rownames(m)] %>%
             log2() %>%
-            run.de(model, contrs)
+            run.de(model, contrs, m$NHP)
 
 # extract results table, format, and save
 res.viro <- colnames(contrs) %>%
@@ -219,7 +226,7 @@ write.csv(res.viro, "analysis/legendplex-viremic.csv", row.names=FALSE)
 topgenes <- res.viro %>%
             filter(Regulation=="Up") %>%
             group_by(Stage) %>%
-            top_n(n=10, wt=lfc) %>%
+            top_n(n=5, wt=lfc) %>%
             ungroup()
 fig5$C <- res.viro %>%
           arrange(Significant) %>%
@@ -227,12 +234,17 @@ fig5$C <- res.viro %>%
           geom_point(aes(size=Regulation, col=Regulation), alpha=0.6) +
           scale_color_manual(values=cols.reg, na.value="lightgrey") +
           scale_size_manual(values=c(Up=1, Down=1), na.value=0.5) +
-          ggrepel::geom_text_repel(data=topgenes, aes(label=Gene), 
-                                   size=2, fontface="bold", force=50,
-                                   nudge_y=1, min.segment.length=2) +
+          ggrepel::geom_text_repel(data=topgenes, aes(label=Gene),
+                                   size=2.4, fontface="bold", force=20,
+                                   force_pull=0.1, nudge_y=3,
+                                   box.padding=0.35, max.overlaps=Inf,
+                                   min.segment.length=0.2, max.iter=20000,
+                                   seed=42) +
           scale_x_continuous(limits=c(-4, 8),
                              breaks=c(-4, 0, 4, 8)) +
-          scale_y_continuous(limits=c(NA, 30)) +
+          # headroom above the cloud so the labels have room to separate
+          scale_y_continuous(limits=c(NA, 38),
+                             breaks=c(0, 10, 20, 30)) +
           facet_wrap(~Stage) +
           labs(x="Fold change (log2)",
                y="padj (-log10)") +
@@ -256,7 +268,7 @@ contrs <- makeContrasts(Early - Baseline,
 # make DE model
 res.avir <- cmat[, rownames(m)] %>%
             log2() %>%
-            run.de(model, contrs)
+            run.de(model, contrs, m$NHP)
 
 # extract results table, format, and save
 res.avir <- colnames(contrs) %>%
@@ -356,7 +368,9 @@ rm(plotlist, selected)
 # figure 5
 x <- cowplot::plot_grid(plotlist=fig5[-1], ncol=2, labels=LETTERS[2:7])
 cowplot::plot_grid(fig5$A, x, ncol=1, rel_heights=c(3, 6), labels=c("A", NA))
-ggsave("analysis/figure5.pdf", units="in", width=6.5, height=9)
+# cairo_pdf so the Greek letters in analyte names (IL-1β, MIP-1α) render
+ggsave("analysis/figure5.pdf", units="in", width=6.5, height=9,
+       device=cairo_pdf)
 rm(x, fig5)
 
 # supplemental 7

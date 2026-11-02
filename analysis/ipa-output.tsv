@@ -1,195 +1,454 @@
 Canonical Pathways	Late	Early
-NF-KB Signaling	-0.816	0
-Pathogen Induced Cytokine Storm Signaling Pathway	0.775	0.447
-ISGylation Signaling Pathway	1.414	0.447
-Cachexia Signaling Pathway	1.604	0.447
-Systemic Lupus Erythematosus in B Cell Signaling Pathway	0.243	1.342
-Role of PKR in Interferon Induction and Antiviral Response	1.265	2
-Stress Granule Signaling Pathway	2.121	2
-Activation of IRF by Cytosolic Pattern Recognition Receptors	2.121	2
-OAS antiviral response	2.236	2
+Interferon alpha/beta signaling	3.838	2.828
 Interferon gamma signaling	2.714	2
-ISG15 antiviral mechanism	1.89	2.236
-Role of Hypercytokinemia/hyperchemokinemia in the Pathogenesis of Influenza	3	2.236
-Interferon alpha/beta signaling	4.146	3.162
-FAK Signaling	-2.5	
-IL-33 Signaling Pathway	-2.449	
-IL-8 Signaling	-2.333	
-IGF-1 Signaling	-2.236	
-Chronic Myeloid Leukemia Signaling	-2.236	
-Colorectal Cancer Metastasis Signaling	-2.121	
-Molecular Mechanisms of Cancer	-2.065	
-cAMP-mediated signaling	-2	
-Pulmonary Fibrosis Idiopathic Signaling Pathway	-2	
-Ephrin Receptor Signaling	-2	
-Relaxin Signaling	-2	
-Protein Kinase A Signaling	-2	
-HGF Signaling	-2	
-Small Cell Lung Cancer Signaling	-2	
-Extra-nuclear estrogen signaling	-2	
-Opioid Signaling Pathway	-2	
-Cardiac Hypertrophy Signaling (Enhanced)	-1.897	
-Coronavirus Pathogenesis Pathway	-1.897	
-B Cell Receptor Signaling	-1.89	
-G-Protein Coupled Receptor Signaling	-1.732	
-Role of JAK family kinases in IL-6-type Cytokine Signaling	-1.633	
-MSP-RON Signaling in Cancer Cells Pathway	-1.633	
-Role of Tissue Factor in Cancer	-1.633	
-ILK Signaling	-1.633	
-Activin Inhibin Signaling Pathway	-1.414	
-ERK/MAPK Signaling	-1.342	
-Chaperone Mediated Autophagy Signaling Pathway	-1.342	
-Transcriptional regulation of granulopoiesis	-1.342	
-Signaling by Rho Family GTPases	-1.342	
-Eicosanoid Signaling	-1.342	
-IL-13 Signaling Pathway	-1.342	
-PI3K/AKT Signaling	-1.342	
-Regulation of the Epithelial Mesenchymal Transition by Growth Factors Pathway	-1.342	
-Role of JAK2 in Hormone-like Cytokine Signaling	-1.342	
-IL-7 Signaling Pathway	-1.342	
-Hepatitis B Chronic Liver Pathogenesis Signaling Pathway	-1.155	
-CREB Signaling in Neurons	-1.134	
-Osteoarthritis Pathway	-1.134	
-T Cell Receptor Signaling	-1.134	
-Erythropoietin Signaling Pathway	-1.134	
-CGRP in Inflammation and Nociception Signaling Pathway	-1	
-BEX2 Signaling Pathway	-1	
-Epithelial Membrane Protein Signaling Pathway	-1	
-Role of JAK1 and JAK3 in γc Cytokine Signaling	-1	
-Complement System	-1	
-NAD Signaling Pathway	-1	
-Endothelin-1 Signaling	-1	
-Sertoli Cell-Germ Cell Junction Signaling Pathway (Enhanced)	-1	
-Signaling by VEGF	-1	
-IL-6 Signaling	-1	
-Pancreatic Adenocarcinoma Signaling	-1	
-Acute Myeloid Leukemia Signaling	-1	
-Apelin Endothelial Signaling Pathway	-1	
-Prolactin Signaling	-1	
-VEGF Signaling	-1	
-ID1 Signaling Pathway	-1	
-IL-23 Signaling Pathway	-1	
-Growth Hormone Signaling	-1	
-Hepatic Fibrosis Signaling Pathway	-0.905	
-HER-2 Signaling in Breast Cancer	-0.816	
-IL-17 Signaling	-0.816	
-Response to elevated platelet cytosolic Ca2+	-0.816	
-Role of Chondrocytes in Rheumatoid Arthritis Signaling Pathway	-0.816	
-IL-4 Signaling	-0.816	
-Adrenomedullin signaling pathway	-0.816	
-Docosahexaenoic Acid (DHA) Signaling	-0.816	
-Serotonin Receptor Signaling	-0.707	
-Sheddase Signaling Pathway	-0.707	
-JAK/STAT Signaling	-0.707	
-Acute Phase Response Signaling	-0.707	
-NOD1/2 Signaling Pathway	-0.707	
-Phagosome Formation	-0.632	
-Interleukin-4 and Interleukin-13 signaling	-0.577	
-BBSome Signaling Pathway	-0.447	
-Thioredoxin Signaling Pathway	-0.447	
-Preeclampsia Signaling Pathway	-0.447	
-Role of Osteoclasts in Rheumatoid Arthritis Signaling Pathway	-0.378	
-Systemic Lupus Erythematosus in T Cell Signaling Pathway	-0.378	
-Dendritic Cell Maturation	-0.333	
-Tumor Microenvironment Pathway	-0.302	
-Immunoregulatory interactions between a Lymphoid and a non-Lymphoid cell	-0.302	
-Cyclophilin Signaling Pathway	-0.302	
-Autism Signaling Pathway	0	
-Breast Cancer Regulation by Stathmin1	0	
-TCF dependent signaling in response to WNT	0	
-Hematoma Resolution Signaling Pathway	0	
-NLR signaling pathways	0	
-Beta-catenin independent WNT signaling	0	
-Hedgehog 'off' state	0	
-HIF1α Signaling	0	
-Insulin Secretion Signaling Pathway	0	
-KEAP1-NFE2L2 pathway	0	
-Neuroinflammation Signaling Pathway	0	
-Degradation of beta-catenin by the destruction complex	0	
-Glycation Signaling Pathway	0	
-TP53 Regulates Transcription of Cell Death Genes	0	
-"Turbulent (oscillatory, disturbed) flow shear stress activates signaling by PIEZO1 and integrins in endothelial cells"	0	
-Intrinsic Pathway for Apoptosis	0	
-IL-10 Signaling	0	
-Mitotic G1 phase and G1/S transition	0	
-Natural Killer Cell Signaling	0	
-S100 Family Signaling Pathway	0	
-IL-15 Production	0	
-Interleukin-6 family signaling	0	
-Neutrophil Extracellular Trap Signaling Pathway	0	
-NAFLD Signaling Pathway	0	
-Transcriptional regulation by RUNX3	0	
-Signaling by CSF1 (M-CSF) in myeloid cells	0	
-S Phase	0	
-Neutrophil degranulation	0.258	
-Tuberculosis Active Signaling Pathway	0.258	
-G alpha (i) signalling events	0.277	
-IL-12 Signaling and Production in Macrophages	0.302	
-"Role of Macrophages, Fibroblasts and Endothelial Cells in Rheumatoid Arthritis"	0.302	
-Lung Ionic Balance Signaling Pathway	0.333	
-Th1 Pathway	0.333	
-TEC Kinase Signaling	0.333	
-NF1 RAS Signaling Pathway	0.333	
-Wound Healing Signaling Pathway	0.378	
-Signaling by the B Cell Receptor (BCR)	0.378	
-RAR Activation	0.378	
-Complement cascade	0.378	
-Multiple Sclerosis Signaling Pathway	0.378	
-Communication between Innate and Adaptive Immune Cells	0.447	
-MSP-RON Signaling in Macrophages Pathway	0.447	
-TCR signaling	0.447	
-Type I Diabetes Mellitus Signaling	0.447	
-Role of MAPK Signaling in Inhibiting the Pathogenesis of Influenza	0.447	
-TNFR2 non-canonical NF-kB pathway	0.447	
-RAF/MAP kinase cascade	0.447	
-PPAR Signaling	0.447	
-MyD88:MAL(TIRAP) cascade initiated on plasma membrane	0.447	
-Irritable Bowel Syndrome Signaling Pathway	0.447	
-Transcriptional regulation by RUNX1	0.447	
-PTEN Regulation	0.447	
-Class A/1 (Rhodopsin-like receptors)	0.577	
-TRIM21 Intracellular Antibody Signaling Pathway	0.632	
-Zn Homeostasis Signaling Pathway	0.632	
-CDX Gastrointestinal Cancer Signaling Pathway	0.707	
-Production of Nitric Oxide and Reactive Oxygen Species in Macrophages	0.816	
-Hepatic Cholestasis	0.816	
-FXR/RXR Activation	0.816	
-Signaling by CSF3 (G-CSF)	1	
-White Adipose Tissue Browning Pathway	1	
-Cellular response to hypoxia	1	
-Regulation of RUNX2 expression and activity	1	
-"PD-1, PD-L1 cancer immunotherapy pathway"	1	
-IL-17A Signaling in Fibroblasts	1	
-RHO GTPases Activate NADPH Oxidases	1	
-Macrophage Alternative Activation Signaling Pathway	1	
-Endocannabinoid Cancer Inhibition Pathway	1	
-Cellular Effects of Sildenafil (Viagra)	1	
-Th2 Pathway	1	
-Cytosolic sensors of pathogen-associated DNA	1	
-Senescence Pathway	1	
-Protein Ubiquitination Pathway	1	
-Interleukin-10 signaling	1	
-Crosstalk between Dendritic Cells and Natural Killer Cells	1	
-Role of Osteoblasts in Rheumatoid Arthritis Signaling Pathway	1	
-Immunogenic Cell Death Signaling Pathway	1	
-CGAS-STING Signaling Pathway	1.134	
-CTLA4 Signaling in Cytotoxic T Lymphocytes	1.134	
-DDX58/IFIH1-mediated induction of interferon-alpha/beta	1.134	
-Fc epsilon receptor (FCERI) signaling	1.134	
-p53 Signaling	1.342	
-C-type lectin receptors (CLRs)	1.342	
-Neddylation	1.342	
-IL-27 Signaling Pathway	1.414	
-Macrophage Classical Activation Signaling Pathway	1.508	
-Class I MHC mediated antigen processing and presentation	1.508	
-Interleukin-1 family signaling	1.633	
-Deubiquitination	1.89	
-Modulation of host responses by IFN-stimulated genes	2	
-Ribotoxic Stress Signaling Pathway	2	
-Role of RIG1-like Receptors in Antiviral Innate Immunity	2	
-PTEN Signaling	2	
-ER-Mitochondrial Communication Signaling Pathway	2	
-Interferon Signaling	2.121	
-Necroptosis Signaling Pathway	2.449	
-Role of Pattern Recognition Receptors in Recognition of Bacteria and Viruses	2.449	
-T Cell Exhaustion Signaling Pathway	2.53	
+OAS antiviral response	2.236	2
+ISG15 antiviral mechanism	1.89	2
+Role of Hypercytokinemia/hyperchemokinemia in the Pathogenesis of Influenza	2.714	N/A
+Role of Pattern Recognition Receptors in Recognition of Bacteria and Viruses	2.646	N/A
+FAK Signaling	-2.5	N/A
+NLRP3 Inflammasome Signaling Pathway	2.449	N/A
+IL-33 Signaling Pathway	-2.449	N/A
+Chronic Myeloid Leukemia Signaling	-2.236	N/A
+IGF-1 Signaling	-2.236	N/A
+Ovarian Folliculogenesis Signaling Pathway	-2.236	N/A
+Pulmonary Fibrosis Idiopathic Signaling Pathway	-2.236	N/A
+Necroptosis Signaling Pathway	2.121	N/A
+Stress Granule Signaling Pathway	2.121	N/A
+T Cell Exhaustion Signaling Pathway	2.111	N/A
+Molecular Mechanisms of Cancer	-2.065	N/A
+Mitotic G1 phase and G1/S transition	-2	N/A
+Relaxin Signaling	-2	N/A
+PTEN Signaling	2	N/A
+ER-Mitochondrial Communication Signaling Pathway	2	N/A
+HER-2 Signaling in Breast Cancer	-2	N/A
+Ephrin Receptor Signaling	-2	N/A
+Small Cell Lung Cancer Signaling	-2	N/A
+Extra-nuclear estrogen signaling	-2	N/A
+HGF Signaling	-2	N/A
+Role of RIG1-like Receptors in Antiviral Innate Immunity	2	N/A
+Modulation of host responses by IFN-stimulated genes	2	N/A
+Protein Kinase A Signaling	-2	N/A
+Opioid Signaling Pathway	-2	N/A
+CD28 Signaling in T Helper Cells	-2	N/A
+Aldolase in Metabolism and Cancer Signaling Pathway	2	N/A
+Inflammasome Signaling Pathway	1.897	N/A
+G-Protein Coupled Receptor Signaling	-1.897	N/A
+Cardiac Hypertrophy Signaling (Enhanced)	-1.897	N/A
+ILK Signaling	-1.89	N/A
+Deubiquitination	1.89	N/A
+Cachexia Signaling Pathway	1.807	N/A
+Class I MHC mediated antigen processing and presentation	1.732	N/A
+Macrophage Classical Activation Signaling Pathway	1.732	N/A
+Interferon Signaling	1.667	N/A
+IL-8 Signaling	-1.667	N/A
+Activation of IRF by Cytosolic Pattern Recognition Receptors	1.667	N/A
+Colorectal Cancer Metastasis Signaling	-1.667	N/A
+Interleukin-1 family signaling	1.633	N/A
+Role of Tissue Factor in Cancer	-1.633	N/A
+MSP-RON Signaling in Cancer Cells Pathway	-1.633	N/A
+Role of JAK family kinases in IL-6-type Cytokine Signaling	-1.633	N/A
+CREB Signaling in Neurons	-1.633	N/A
+Coronavirus Pathogenesis Pathway	-1.508	N/A
+IL-27 Signaling Pathway	1.508	N/A
+T Cell Receptor Signaling	-1.414	N/A
+Cellular Effects of Sildenafil (Viagra)	1.414	N/A
+CTLA4 Signaling in Cytotoxic T Lymphocytes	1.414	N/A
+p53 Signaling	1.342	N/A
+C-type lectin receptors (CLRs)	1.342	N/A
+IL-13 Signaling Pathway	-1.342	N/A
+ERK/MAPK Signaling	-1.342	N/A
+Eicosanoid Signaling	-1.342	N/A
+Chaperone Mediated Autophagy Signaling Pathway	-1.342	N/A
+Ribotoxic Stress Signaling Pathway	1.342	N/A
+Transcriptional regulation of granulopoiesis	-1.342	N/A
+PD-1, PD-L1 cancer immunotherapy pathway	1.342	N/A
+IL-7 Signaling Pathway	-1.342	N/A
+ID1 Signaling Pathway	-1.342	N/A
+Regulation of the Epithelial Mesenchymal Transition by Growth Factors Pathway	-1.342	N/A
+PI3K/AKT Signaling	-1.342	N/A
+Signaling by Rho Family GTPases	-1.342	N/A
+RBP4 in Immune and Metabolic Regulation Signaling Pathway	1.342	N/A
+Neddylation	1.342	N/A
+Role of JAK2 in Hormone-like Cytokine Signaling	-1.342	N/A
+Neutrophil degranulation	1.291	N/A
+Macrophage Alternative Activation Signaling Pathway	1.265	N/A
+ISGylation Signaling Pathway	1.265	N/A
+AIM2 Inflammasome Signaling Pathway	1.265	N/A
+Role of PKR in Interferon Induction and Antiviral Response	1.155	N/A
+Hepatic Cholestasis	1.134	N/A
+Role of NFAT in Regulation of the Immune Response	-1.134	N/A
+Role of Chondrocytes in Rheumatoid Arthritis Signaling Pathway	-1.134	N/A
+Osteoarthritis Pathway	-1.134	N/A
+Response to elevated platelet cytosolic Ca2+	-1.134	N/A
+Production of Nitric Oxide and Reactive Oxygen Species in Macrophages	1.134	N/A
+Fc epsilon receptor (FCERI) signaling	1.134	N/A
+DDX58/IFIH1-mediated induction of interferon-alpha/beta	1.134	N/A
+Erythropoietin Signaling Pathway	-1.134	N/A
+CGAS-STING Signaling Pathway	1.134	N/A
+VEGF Signaling	-1	N/A
+Pathogen Induced Cytokine Storm Signaling Pathway	1	N/A
+Activin Inhibin Signaling Pathway	-1	N/A
+Prolactin Signaling	-1	N/A
+Sertoli Cell-Germ Cell Junction Signaling Pathway (Enhanced)	-1	N/A
+Regulation of PD-L1(CD274) Post-translational modification	1	N/A
+iNOS Signaling	1	N/A
+Oxidative Stress Induced Senescence	-1	N/A
+Oxytocin in Brain Signaling Pathway	-1	N/A
+Acute Myeloid Leukemia Signaling	-1	N/A
+PIP3 activates AKT signaling	-1	N/A
+Parkinson's Signaling Pathway	1	N/A
+Pulmonary Healing Signaling Pathway	1	N/A
+Apelin Endothelial Signaling Pathway	-1	N/A
+Cerebral Malformation Signaling Pathway	-1	N/A
+Role of JAK1 and JAK3 in γc Cytokine Signaling	-1	N/A
+HOTAIR Regulatory Pathway	-1	N/A
+Signaling by VEGF	-1	N/A
+LXR/RXR Activation	-1	N/A
+Granzyme A Signaling	1	N/A
+Pancreatic Adenocarcinoma Signaling	-1	N/A
+IL-6 Signaling	-1	N/A
+Acute Phase Response Signaling	-1	N/A
+Senescence Pathway	1	N/A
+Integrin to Cytoskeleton Signaling Pathway	-1	N/A
+Toll-like Receptor Signaling	1	N/A
+NAD Signaling Pathway	-1	N/A
+Endocannabinoid Cancer Inhibition Pathway	1	N/A
+Regulation of TLR by endogenous ligand	1	N/A
+Role of PI3K/AKT Signaling in the Pathogenesis of Influenza	-1	N/A
+RHO GTPases Activate NADPH Oxidases	1	N/A
+Autophagy	1	N/A
+Endothelin-1 Signaling	-1	N/A
+Regulation of RUNX2 expression and activity	1	N/A
+Cytosolic sensors of pathogen-associated DNA	1	N/A
+Neuronal Cancer Synapse Signaling Pathway	-1	N/A
+Gap Junction Signaling	-1	N/A
+Signaling by CSF3 (G-CSF)	1	N/A
+ICOS-ICOSL Signaling in T Helper Cells	-1	N/A
+BEX2 Signaling Pathway	-1	N/A
+CLEAR Signaling Pathway	1	N/A
+Integrin cell surface interactions	-1	N/A
+Complement System	-1	N/A
+Cellular response to hypoxia	1	N/A
+Growth Hormone Signaling	-1	N/A
+CGRP in Inflammation and Nociception Signaling Pathway	-1	N/A
+Cereblon and Thalidomide Signaling Pathway	1	N/A
+Role of Osteoblasts in Rheumatoid Arthritis Signaling Pathway	1	N/A
+Protein Ubiquitination Pathway	1	N/A
+IL-23 Signaling Pathway	-1	N/A
+Neutrophil Extracellular Trap Signaling Pathway	0.905	N/A
+Role of Macrophages, Fibroblasts and Endothelial Cells in Rheumatoid Arthritis	0.832	N/A
+Hepatitis B Chronic Liver Pathogenesis Signaling Pathway	-0.832	N/A
+Docosahexaenoic Acid (DHA) Signaling	-0.816	N/A
+Adrenomedullin signaling pathway	-0.816	N/A
+Irritable Bowel Syndrome Signaling Pathway	0.816	N/A
+IL-17 Signaling	-0.816	N/A
+IL-4 Signaling	-0.816	N/A
+Role of MAPK Signaling in Inhibiting the Pathogenesis of Influenza	0.816	N/A
+MyD88:MAL(TIRAP) cascade initiated on plasma membrane	0.816	N/A
+PI3K Signaling in B Lymphocytes	-0.816	N/A
+FXR/RXR Activation	0.816	N/A
+Crosstalk between Dendritic Cells and Natural Killer Cells	0.816	N/A
+Immunogenic Cell Death Signaling Pathway	0.816	N/A
+CDX Gastrointestinal Cancer Signaling Pathway	0.707	N/A
+Serotonin Receptor Signaling	-0.707	N/A
+JAK/STAT Signaling	-0.707	N/A
+Lung Ionic Balance Signaling Pathway	-0.707	N/A
+Multiple Sclerosis Signaling Pathway	0.707	N/A
+TEC Kinase Signaling	0.632	N/A
+NOD1/2 Signaling Pathway	-0.632	N/A
+Tumor Microenvironment Pathway	-0.577	N/A
+Hematoma Resolution Signaling Pathway	-0.577	N/A
+Hepatic Fibrosis Signaling Pathway	-0.577	N/A
+Tuberculosis Active Signaling Pathway	-0.535	N/A
+Type I Diabetes Mellitus Signaling	0.447	N/A
+TCR signaling	0.447	N/A
+Regulation of PD-L1(CD274) transcription	0.447	N/A
+IL-17A Signaling in Fibroblasts	0.447	N/A
+Epithelial Membrane Protein Signaling Pathway	-0.447	N/A
+Th2 Pathway	0.447	N/A
+TNFR2 non-canonical NF-kB pathway	0.447	N/A
+Thioredoxin Signaling Pathway	-0.447	N/A
+Turbulent (oscillatory, disturbed) flow shear stress activates signaling by PIEZO1 and integrins in endothelial cells	-0.447	N/A
+PPAR Signaling	0.447	N/A
+Breast Cancer Regulation by Stathmin1	-0.447	N/A
+Transcriptional regulation by RUNX1	0.447	N/A
+PTEN Regulation	0.447	N/A
+RNA m6A Methylation Signaling Pathway	-0.447	N/A
+Systemic Lupus Erythematosus in T Cell Signaling Pathway	-0.378	N/A
+MSP-RON Signaling in Macrophages Pathway	0.378	N/A
+Signaling by the B Cell Receptor (BCR)	0.378	N/A
+NF1 RAS Signaling Pathway	-0.378	N/A
+RAR Activation	0.378	N/A
+Communication between Innate and Adaptive Immune Cells	0.378	N/A
+NF-κB Signaling	-0.378	N/A
+Class A/1 (Rhodopsin-like receptors)	0.333	N/A
+Zn Homeostasis Signaling Pathway	-0.333	N/A
+Emergency Myelopoiesis Signaling Pathway	0.333	N/A
+NAFLD Signaling Pathway	0.333	N/A
+Immunoregulatory interactions between a Lymphoid and a non-Lymphoid cell	-0.302	N/A
+TRIM21 Intracellular Antibody Signaling Pathway	0.302	N/A
+IL-10 Signaling	-0.302	N/A
+Dendritic Cell Maturation	-0.302	N/A
+Th1 Pathway	-0.302	N/A
+Cyclophilin Signaling Pathway	-0.302	N/A
+IL-12 Signaling and Production in Macrophages	0.277	N/A
+Neuroinflammation Signaling Pathway	0.277	N/A
+Phagosome Formation	-0.277	N/A
+Interleukin-4 and Interleukin-13 signaling	-0.277	N/A
+TR/RXR Activation	N/A	N/A
+DNA Replication Pre-Initiation	N/A	N/A
+Role of IL-17A in Arthritis	N/A	N/A
+NFE2L2 regulating tumorigenic genes	N/A	N/A
+Elastic fibre formation	N/A	N/A
+Integrin signaling	N/A	N/A
+MYC Mediated Apoptosis Signaling	N/A	N/A
+Apoptotic execution phase	N/A	N/A
+Metabolism of polyamines	0	N/A
+FLT3 Signaling	N/A	N/A
+Macropinocytosis Signaling	N/A	N/A
+Regulation of Cellular Mechanics by Calpain Protease	N/A	N/A
+MyD88 dependent cascade initiated on endosome	N/A	N/A
+Signaling by SCF-KIT	N/A	N/A
+EGF Signaling	N/A	N/A
+Axonal Guidance Signaling	N/A	N/A
+Allograft Rejection Signaling	N/A	N/A
+GM-CSF Signaling	N/A	N/A
+Ephrin A Signaling	N/A	N/A
+Apoptosis Signaling	N/A	N/A
+GBP-mediated host defense	N/A	N/A
+Role of JAK1, JAK2 and TYK2 in Interferon Signaling	N/A	N/A
+Lymphotoxin β Receptor Signaling	N/A	N/A
+Fc Epsilon RI Signaling	N/A	N/A
+Toll Like Receptor 3 (TLR3) Cascade	N/A	N/A
+Ascorbate Recycling (Cytosolic)	N/A	N/A
+MyD88-independent TLR4 cascade	N/A	N/A
+Arachidonate metabolism	N/A	N/A
+CXCR4 Signaling	N/A	N/A
+Intrinsic Pathway for Apoptosis	0	N/A
+ZFX in Tumorigenesis Signaling Pathway	N/A	N/A
+NLR signaling pathways	0	N/A
+Sumoylation Pathway	N/A	N/A
+LPS-stimulated MAPK Signaling	N/A	N/A
+Airway Pathology in Chronic Obstructive Pulmonary Disease	N/A	N/A
+Fibronectin matrix formation	N/A	N/A
+Degradation of CRY and PER proteins	N/A	N/A
+Regulation of Apoptosis	N/A	N/A
+Caveolar-mediated Endocytosis Signaling	N/A	N/A
+Antigen Presentation Pathway	N/A	N/A
+Inhibition of ARE-Mediated mRNA Degradation Pathway	N/A	N/A
+Caspase activation via Death Receptors in the presence of ligand	N/A	N/A
+MSP-RON Signaling Pathway	N/A	N/A
+GPER1 signaling	N/A	N/A
+Systemic Lupus Erythematosus in B Cell Signaling Pathway	0	N/A
+Agranulocyte Adhesion and Diapedesis	N/A	N/A
+SUMOylation of immune response proteins	N/A	N/A
+Hedgehog 'on' state	N/A	N/A
+PPARα/RXRα Activation	N/A	N/A
+STAT3 Pathway	N/A	N/A
+Retinoic acid Mediated Apoptosis Signaling	N/A	N/A
+Iron homeostasis signaling pathway	N/A	N/A
+Co-inhibition by CTLA4	N/A	N/A
+TP53 Regulates Transcription of Cell Death Genes	N/A	N/A
+Thyroid Cancer Signaling	N/A	N/A
+FXIIa activates plasma kallikrein-kinin system	N/A	N/A
+Glutathione Redox Reactions II	N/A	N/A
+Endometrial Cancer Signaling	N/A	N/A
+cAMP-mediated signaling	N/A	N/A
+Degradation of beta-catenin by the destruction complex	0	N/A
+Role of IL-17A in Psoriasis	N/A	N/A
+NAD biosynthesis II (from tryptophan)	N/A	N/A
+Regulation of mitotic cell cycle	N/A	N/A
+Epoxysqualene Biosynthesis	N/A	N/A
+Tryptophan Degradation III (Eukaryotic)	N/A	N/A
+Phagosome Maturation	N/A	N/A
+Actin Cytoskeleton Signaling	N/A	N/A
+CSDE1 Signaling Pathway	N/A	N/A
+KEAP1-NFE2L2 pathway	0	N/A
+Paxillin Signaling	N/A	N/A
+Role of Osteoblasts, Osteoclasts and Chondrocytes in Rheumatoid Arthritis	N/A	N/A
+Differentiation of naive CD4+ T cells to T helper 2 cells (Th2 cells)	N/A	N/A
+Type II Diabetes Mellitus Signaling	N/A	N/A
+Heme Degradation	N/A	N/A
+Toll-like Receptor Cascades	N/A	N/A
+RANK Signaling in Osteoclasts	N/A	N/A
+Signaling by NOTCH4	N/A	N/A
+Antioxidant Action of Vitamin C	N/A	N/A
+RIPK1-mediated regulated necrosis	N/A	N/A
+Tetrahydrobiopterin Biosynthesis I	N/A	N/A
+MAPK targets/ Nuclear events mediated by MAP kinases	N/A	N/A
+Synthesis of Prostaglandins (PG) and Thromboxanes (TX)	N/A	N/A
+Role of WNT/GSK-3β Signaling in the Pathogenesis of Influenza	N/A	N/A
+CD27 Signaling in Lymphocytes	N/A	N/A
+Glycogen metabolism	N/A	N/A
+CKAP4 Multifunctional Receptor Signaling Pathway	N/A	N/A
+PEDF Signaling	N/A	N/A
+RAF/MAP kinase cascade	0	N/A
+Thymine Degradation	N/A	N/A
+UVA-Induced MAPK Signaling	N/A	N/A
+MIF Regulation of Innate Immunity	0	N/A
+TNFR2 Signaling	N/A	N/A
+Sperm Motility	N/A	N/A
+Senescence-Associated Secretory Phenotype (SASP)	N/A	N/A
+FLT3 Signaling in Hematopoietic Progenitor Cells	N/A	N/A
+Corticotropin Releasing Hormone Signaling	N/A	N/A
+PAK Signaling	N/A	N/A
+Gαq Signaling	N/A	N/A
+MHC class II antigen presentation	N/A	N/A
+HMGB1 Signaling	N/A	N/A
+Hedgehog 'off' state	0	N/A
+Binding and Uptake of Ligands by Scavenger Receptors	N/A	N/A
+Gα12/13 Signaling	N/A	N/A
+Ribonucleotide Reductase Signaling Pathway	N/A	N/A
+Beta-catenin independent WNT signaling	0	N/A
+Transcriptional activity of SMAD2/SMAD3:SMAD4 heterotrimer	N/A	N/A
+Pentose Phosphate Pathway (Oxidative Branch)	N/A	N/A
+Altered T Cell and B Cell Signaling in Rheumatoid Arthritis	N/A	N/A
+HIF1α Signaling	0	N/A
+Granzyme B Signaling	N/A	N/A
+Complement cascade	0	N/A
+IL-1 Signaling	N/A	N/A
+Synthesis of DNA	N/A	N/A
+Angiopoietin Signaling	N/A	N/A
+G alpha (i) signalling events	0	N/A
+Co-stimulation by CD28	N/A	N/A
+Activation of STAT3 by cadherin engagement	0	N/A
+Signaling by NOTCH2	N/A	N/A
+Iron uptake and transport	N/A	N/A
+Role of IL-17F in Allergic Inflammatory Airway Diseases	N/A	N/A
+Transcriptional regulation by RUNX2	N/A	N/A
+Co-stimulation by ICOS	N/A	N/A
+Signaling by ALK	N/A	N/A
+IL-17A Signaling in Airway Cells	N/A	N/A
+Renin-Angiotensin Signaling	N/A	N/A
+Virus Entry via Endocytic Pathways	N/A	N/A
+Natural Killer Cell Signaling	N/A	N/A
+Role of MAPK Signaling in Promoting the Pathogenesis of Influenza	N/A	N/A
+Thrombopoietin Signaling	N/A	N/A
+Pyroptosis	N/A	N/A
+Hedgehog ligand biogenesis	N/A	N/A
+Interleukin-7 signaling	N/A	N/A
+TNFR1 Signaling	N/A	N/A
+IL-9 Signaling	N/A	N/A
+Formaldehyde Oxidation II (Glutathione-dependent)	N/A	N/A
+TAK1-dependent IKK and NF-kappa-B activation	N/A	N/A
+p38 MAPK Signaling	N/A	N/A
+S Phase	0	N/A
+IL-17A Signaling in Gastric Cells	N/A	N/A
+Tumoricidal Function of Hepatic Natural Killer Cells	N/A	N/A
+1,25-dihydroxyvitamin D3 Biosynthesis	N/A	N/A
+IL-3 Signaling	N/A	N/A
+Apelin Muscle Signaling Pathway	N/A	N/A
+NIK-->noncanonical NF-kB signaling	N/A	N/A
+Regulation of the Epithelial-Mesenchymal Transition Pathway	N/A	N/A
+Uracil Degradation II (Reductive)	N/A	N/A
+Th1 and Th2 Activation Pathway	N/A	N/A
+Creatine-phosphate Biosynthesis	N/A	N/A
+FAT10 Signaling Pathway	N/A	N/A
+Pexophagy	N/A	N/A
+Pyroptosis Signaling Pathway	N/A	N/A
+Interleukin-2 family signaling	N/A	N/A
+Huntington's Disease Signaling	N/A	N/A
+Cell surface interactions at the vascular wall	0	N/A
+Signaling by MET	N/A	N/A
+Tryptophan Degradation to 2-amino-3-carboxymuconate Semialdehyde	N/A	N/A
+MAPK6/MAPK4 signaling	N/A	N/A
+Cholecystokinin/Gastrin-mediated Signaling	N/A	N/A
+Signaling by ERBB2	N/A	N/A
+Proteasome assembly	N/A	N/A
+Signaling by PTK6	N/A	N/A
+TCF dependent signaling in response to WNT	0	N/A
+Transcriptional and post-translational regulation of MITF-M expression and activity	N/A	N/A
+Regulation of TP53 Expression and Degradation	N/A	N/A
+Co-inhibition by PD-1	N/A	N/A
+Atherosclerosis Signaling	N/A	N/A
+FAT10 Cancer Signaling Pathway	N/A	N/A
+CD40 Signaling	N/A	N/A
+IL-2 Signaling	N/A	N/A
+Role of Lipids/Lipid Rafts in the Pathogenesis of Influenza	N/A	N/A
+Semaphorin Neuronal Repulsive Signaling Pathway	N/A	N/A
+Glutamate Biosynthesis II	N/A	N/A
+Sheddase Signaling Pathway	0	N/A
+Pathogenesis of Multiple Sclerosis	N/A	N/A
+SPINK1 General Cancer Pathway	N/A	N/A
+Morphine Biosynthesis	N/A	N/A
+Autism Signaling Pathway	0	N/A
+Guanine and Guanosine Salvage I	N/A	N/A
+Death Receptor Signaling	N/A	N/A
+Metabolism of Angiotensinogen to Angiotensins	N/A	N/A
+NF-κB Activation by Viruses	N/A	N/A
+Polyamine Regulation in Colon Cancer	N/A	N/A
+IL-22 Signaling	N/A	N/A
+Somitogenesis	N/A	N/A
+Antimicrobial peptides	N/A	N/A
+FasL/ CD95L signaling	N/A	N/A
+Cancer Drug Resistance by Drug Efflux	N/A	N/A
+Sphingosine-1-phosphate Signaling	N/A	N/A
+Primary Immunodeficiency Signaling	N/A	N/A
+WNT/β-catenin Signaling	N/A	N/A
+Insulin Secretion Signaling Pathway	0	N/A
+Detoxification of Reactive Oxygen Species	N/A	N/A
+Neuroprotective Role of THOP1 in Alzheimer's Disease	N/A	N/A
+RAC Signaling	N/A	N/A
+Prostate Cancer Signaling	N/A	N/A
+Transcriptional Regulation by VENTX	N/A	N/A
+Signaling by NOTCH1	N/A	N/A
+Nicotinate metabolism	N/A	N/A
+Tetrahydrobiopterin Biosynthesis II	N/A	N/A
+Hematopoiesis from Multipotent Stem Cells	N/A	N/A
+Glycation Signaling Pathway	0	N/A
+Role of MAPK Signaling in the Pathogenesis of Influenza	N/A	N/A
+Interleukin-1 processing	N/A	N/A
+Neuregulin Signaling	N/A	N/A
+Pulmonary Hypertension Signaling Pathway	0	N/A
+fMLP Signaling in Neutrophils	N/A	N/A
+Growth hormone receptor signaling	N/A	N/A
+Regulation of Insulin-like Growth Factor (IGF) transport and uptake by IGFBPs	N/A	N/A
+Glutamate Degradation X	N/A	N/A
+Role of Osteoclasts in Rheumatoid Arthritis Signaling Pathway	0	N/A
+GDP-L-fucose Biosynthesis I (from GDP-D-mannose)	N/A	N/A
+Granulocyte Adhesion and Diapedesis	N/A	N/A
+Amyotrophic Lateral Sclerosis Signaling	N/A	N/A
+Transcriptional regulation by RUNX3	0	N/A
+Regulation of mRNA stability by proteins that bind AU-rich elements	N/A	N/A
+Regulation of TP53 Activity through Acetylation	N/A	N/A
+DNA damage-induced 14-3-3σ Signaling	N/A	N/A
+UFMylation Signaling Pathway	N/A	N/A
+Wound Healing Signaling Pathway	0	N/A
+TREM1 Signaling	N/A	N/A
+Signaling by NOTCH3	N/A	N/A
+Hypoxia Signaling in the Cardiovascular System	N/A	N/A
+Thioredoxin Pathway	N/A	N/A
+S100 Family Signaling Pathway	0	N/A
+MIF-mediated Glucocorticoid Regulation	N/A	N/A
+B Cell Activating Factor Signaling	N/A	N/A
+Tryptophan catabolism	N/A	N/A
+DYRK1A Signaling Pathway	N/A	N/A
+April Mediated Signaling	N/A	N/A
+Gαi Signaling	N/A	N/A
+Autoimmune Thyroid Disease Signaling	N/A	N/A
+Folate Signaling Pathway	N/A	N/A
+Interleukin-10 signaling	N/A	N/A
+Induction of Apoptosis by HIV1	N/A	N/A
+PFKFB4 Signaling Pathway	N/A	N/A
+Interleukin-9 signaling	N/A	N/A
+Other interleukin signaling	N/A	N/A
+RAS processing	N/A	N/A
+IL-15 Production	0	N/A
+RUNX1 and FOXP3 control the development of regulatory T lymphocytes (Tregs)	N/A	N/A
+Interleukin-6 family signaling	0	N/A
+Signaling by CSF1 (M-CSF) in myeloid cells	0	N/A
+Warburg Effect Signaling Pathway	N/A	N/A
+VDR/RXR Activation	N/A	N/A
+Hepatic Fibrosis / Hepatic Stellate Cell Activation	N/A	N/A
+Proteasomal PSMD10 Signaling Pathway	N/A	N/A
+ABC-family protein mediated transport	N/A	N/A
+Glucocorticoid Receptor Signaling	N/A	N/A
+Interleukin-20 family signaling	N/A	N/A
+Ephrin B Signaling	N/A	N/A
+Renal Cell Carcinoma Signaling	N/A	N/A
+PDGF Signaling	N/A	N/A
+Preeclampsia Signaling Pathway	0	N/A
+RAF-independent MAPK1/3 activation	N/A	N/A
+Ovarian Cancer Signaling	N/A	N/A
+Graft-versus-Host Disease Signaling	N/A	N/A
+T Helper Cell Differentiation	N/A	N/A
